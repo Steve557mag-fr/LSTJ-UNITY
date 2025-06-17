@@ -30,11 +30,13 @@ public class DiscordManager : GameSingleton
 
     void OnAuth(ClientResult result, string code, string redirectUri)
     {
+        Debug.Log($"Authorization result: [{result.Error()}] [{code}] [{redirectUri}]");
         if (!result.Successful())
         {
             return;
         }
 
+        client.
         client.GetToken(appID, code, codeVerifier, redirectUri, OnTokenExchange);
     }
 
@@ -46,6 +48,8 @@ public class DiscordManager : GameSingleton
             return;
         }
 
+        Debug.Log("Token received: " + accessToken);
+        client.UpdateToken(AuthorizationTokenType.Bearer, accessToken, (ClientResult result) => { client.Connect(); });
     }
 
 
