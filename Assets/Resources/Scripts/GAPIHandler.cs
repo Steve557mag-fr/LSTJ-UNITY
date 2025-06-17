@@ -36,9 +36,11 @@ public class GAPIHandler : GameSingleton
         // handle response
         print(JObject.FromObject(response));
         Debug.Log($"response : {response.Content}");
-        
+
         //if (response.IsSuccessful) Debug.Log($"response : {response.Content}");
         //else Debug.Log("ERR!");
+
+        
 
     }
 
