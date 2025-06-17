@@ -11,6 +11,7 @@ public class GAPIHandler : GameSingleton
     {
         MakeInstance<GAPIHandler>();
         restClient = new(API_URL);
+        
     }
 
     private void Start()
