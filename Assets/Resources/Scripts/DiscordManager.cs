@@ -1,5 +1,6 @@
 using UnityEngine;
 using Discord.Sdk;
+using System;
 
 public class DiscordManager : GameSingleton
 {
@@ -8,6 +9,9 @@ public class DiscordManager : GameSingleton
 
     Client client;
     string codeVerifier;
+
+    string mainToken;
+    ulong currentLobby;
 
     private void Start()
     {
@@ -36,7 +40,6 @@ public class DiscordManager : GameSingleton
             return;
         }
 
-        client.
         client.GetToken(appID, code, codeVerifier, redirectUri, OnTokenExchange);
     }
 
@@ -50,8 +53,22 @@ public class DiscordManager : GameSingleton
 
         Debug.Log("Token received: " + accessToken);
         client.UpdateToken(AuthorizationTokenType.Bearer, accessToken, (ClientResult result) => { client.Connect(); });
+        mainToken = accessToken;
+
+        client.CreateOrJoinLobby("secret_lobby", OnJoinedLobby);
+
     }
 
+    private void OnJoinedLobby(ClientResult result, ulong lobbyId)
+    {
+        OnLog("lobby joined!", LoggingSeverity.Info);
+        client.SendActivityInvite(622484016066461727, "bouh", OnActivityInvited);
+    }
+
+    private void OnActivityInvited(ClientResult result)
+    {
+        print("huh");
+    }
 
     void OnLog(string message, LoggingSeverity severity)
     {
