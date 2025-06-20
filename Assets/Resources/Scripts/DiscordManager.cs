@@ -44,7 +44,6 @@ public class DiscordManager : GameSingleton
         authArgs.SetClientId(clientID);
         authArgs.SetScopes(Client.GetDefaultPresenceScopes());
         authArgs.SetCodeChallenge(verifier.Challenge());
-
         client.Authorize(authArgs, OnAuth);
 
     }

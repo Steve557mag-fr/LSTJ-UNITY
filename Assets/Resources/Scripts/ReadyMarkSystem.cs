@@ -19,16 +19,23 @@ public class ReadyMarkSystem : MonoBehaviour
 
     public void ResetSystem(bool forceUI = true)
     {
-        //maxUser = _maxUser;
         marks = new UserMark[maxUser];
+        UpdateMarks(new());
     }
 
-    public void UpdateMarks(JObject data)
+    public void UpdateMarks(JArray data)
     {
         int currentMark = 0;
-        foreach (var mark in marks) {
-            
+        for (int i = 0; i < marks.Length; i++) {
+            if (i < data.Count){
+
+                marks[i].markState = data[i]["mark_state"].ToObject<bool>();
+                marks[i].markState = data[i]["member_id"].ToObject<bool>();
+
+                continue;
+            }
         }
+
 
         // check for the global-ready activation
         if (currentMark == maxUser) WhenReady();
@@ -39,6 +46,7 @@ public class ReadyMarkSystem : MonoBehaviour
     {
         myMarkState = state;
         //GameSingleton.GetInstance<DiscordManager>().MarkUserInLobby(myMarkState);
+
     }
 
     void WhenReady()
