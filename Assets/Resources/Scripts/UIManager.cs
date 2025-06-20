@@ -2,15 +2,20 @@ using UnityEngine;
 
 public class UIManager : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+
+    public void Start()
     {
-        
+        GameSingleton.GetInstance<DiscordManager>().authDone += AuthFinished;
+
     }
 
-    // Update is called once per frame
-    void Update()
+    void AuthFinished()
     {
-        
+        var data = GameSingleton.GetInstance<DiscordManager>().currentUserData;
+        if (!data.HasValue)
+        {
+            print($"hi, my name is {data.Value.userName} shady");
+        }
     }
+
 }
