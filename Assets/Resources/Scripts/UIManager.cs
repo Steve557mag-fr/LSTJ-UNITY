@@ -5,6 +5,7 @@ public class UIManager : MonoBehaviour
 {
 
     [SerializeField] TextMeshProUGUI authLabel;
+    [SerializeField] GameObject joinLobbyButton, authButton;
 
     public void Start()
     {
@@ -18,6 +19,8 @@ public class UIManager : MonoBehaviour
         if (!data.HasValue) return;
 
         authLabel.text = $"Bonjour {data.Value.userName}!";
+        joinLobbyButton.SetActive(true);
+        authButton.SetActive(false);
 
     }
 
