@@ -2658,9 +2658,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1048950331}
+      - m_Target: {fileID: 1048950332}
         m_TargetAssemblyTypeName: DiscordManager, Assembly-CSharp
-        m_MethodName: 
+        m_MethodName: TryJoinLobby
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
