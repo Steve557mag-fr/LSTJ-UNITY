@@ -1,7 +1,10 @@
 using UnityEngine;
+using TMPro;
 
 public class UIManager : MonoBehaviour
 {
+
+    [SerializeField] TextMeshProUGUI authLabel;
 
     public void Start()
     {
@@ -13,8 +16,9 @@ public class UIManager : MonoBehaviour
     {
         var data = GameSingleton.GetInstance<DiscordManager>().currentUserData;
         if (!data.HasValue) return;
-        
-        print($"hi, my name is {data.Value.userName} shady");
+
+        authLabel.text = $"Bonjour {data.Value.userName}!";
+
     }
 
 }
