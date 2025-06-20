@@ -69,11 +69,9 @@ public class DiscordManager : GameSingleton
         currentToken = accessToken;
         client.UpdateToken(tokenType, accessToken, (ClientResult result) => {
             client.Connect();
-            authDone.Invoke();
-            //client.FetchCurrentUser(tokenType, currentToken, UserDiscordUpdated);
 
             currentUserData = new() { userName = client.GetCurrentUser().Username(), userId = client.GetCurrentUser().Id() };
-
+            authDone.Invoke();
         });
     }
 
