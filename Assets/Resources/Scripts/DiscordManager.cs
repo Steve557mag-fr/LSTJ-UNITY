@@ -10,13 +10,29 @@ public class DiscordManager : GameSingleton
     Client client;
     string codeVerifier;
 
-    string mainToken;
+    string currentToken;
     ulong currentLobby;
+
+
+
+    public UserData? currentUserData;
+
+    public delegate void OnDiscordAuthDone();
+    public OnDiscordAuthDone authDone;
+
+    public delegate void OnLobbyJoined();
+    public OnLobbyJoined lobbyJoined;
+
+
 
     private void Start()
     {
         client = new Client();
         client.AddLogCallback(OnLog, LoggingSeverity.Verbose);
+
+        //client.SetLobbyCreatedCallback();
+        //client.SetLobbyUpdatedCallback();
+
     }
 
     public void AuthAccount()
@@ -30,17 +46,16 @@ public class DiscordManager : GameSingleton
         authArgs.SetCodeChallenge(verifier.Challenge());
 
         client.Authorize(authArgs, OnAuth);
+
     }
 
     void OnAuth(ClientResult result, string code, string redirectUri)
     {
-        Debug.Log($"Authorization result: [{result.Error()}] [{code}] [{redirectUri}]");
-        if (!result.Successful())
-        {
-            return;
-        }
+        OnLog($"auth result : [{result}][{code}][{redirectUri}]");
+        if (!result.Successful()) return;
 
         client.GetToken(appID, code, codeVerifier, redirectUri, OnTokenExchange);
+
     }
 
     void OnTokenExchange(ClientResult result, string accessToken, string refreshToken, AuthorizationTokenType tokenType, int expiresIn, string scopes)
@@ -51,11 +66,20 @@ public class DiscordManager : GameSingleton
             return;
         }
 
-        Debug.Log("Token received: " + accessToken);
-        client.UpdateToken(AuthorizationTokenType.Bearer, accessToken, (ClientResult result) => { client.Connect(); });
-        mainToken = accessToken;
+        currentToken = accessToken;
+        client.UpdateToken(AuthorizationTokenType.Bearer, accessToken, (ClientResult result) => {
+            client.Connect();
+            client.FetchCurrentUser(tokenType, currentToken, UserDiscordUpdated);
+        });
+        
+    }
 
-        client.CreateOrJoinLobby("secret_lobby", OnJoinedLobby);
+
+    private void UserDiscordUpdated(ClientResult result, ulong id, string name)
+    {
+        if (!result.Successful()) return;
+
+        currentUserData = new() { userName = name, userId = id };
 
     }
 
@@ -70,10 +94,15 @@ public class DiscordManager : GameSingleton
         print("huh");
     }
 
-    void OnLog(string message, LoggingSeverity severity)
+    void OnLog(string message, LoggingSeverity severity = LoggingSeverity.Verbose)
     {
         Debug.Log($"[DISC/{severity}]: {message}");
-
     }
 
+}
+
+public struct UserData
+{
+    public string userName;
+    public ulong userId;
 }
