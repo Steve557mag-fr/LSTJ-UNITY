@@ -67,11 +67,14 @@ public class DiscordManager : GameSingleton
         }
 
         currentToken = accessToken;
-        client.UpdateToken(AuthorizationTokenType.Bearer, accessToken, (ClientResult result) => {
+        client.UpdateToken(tokenType, accessToken, (ClientResult result) => {
             client.Connect();
-            client.FetchCurrentUser(tokenType, currentToken, UserDiscordUpdated);
+            authDone.Invoke();
+            //client.FetchCurrentUser(tokenType, currentToken, UserDiscordUpdated);
+
+            currentUserData = new() { userName = client.GetCurrentUser().Username(), userId = client.GetCurrentUser().Id() };
+
         });
-        
     }
 
 
@@ -80,7 +83,6 @@ public class DiscordManager : GameSingleton
         if (!result.Successful()) return;
 
         currentUserData = new() { userName = name, userId = id };
-
     }
 
     private void OnJoinedLobby(ClientResult result, ulong lobbyId)

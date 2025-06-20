@@ -12,10 +12,9 @@ public class UIManager : MonoBehaviour
     void AuthFinished()
     {
         var data = GameSingleton.GetInstance<DiscordManager>().currentUserData;
-        if (!data.HasValue)
-        {
-            print($"hi, my name is {data.Value.userName} shady");
-        }
+        if (!data.HasValue) return;
+        
+        print($"hi, my name is {data.Value.userName} shady");
     }
 
 }
