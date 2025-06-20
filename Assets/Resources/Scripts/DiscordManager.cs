@@ -69,9 +69,7 @@ public class DiscordManager : GameSingleton
         currentToken = accessToken;
         client.UpdateToken(tokenType, accessToken, (ClientResult result) => {
             client.Connect();
-
-            currentUserData = new() { userName = client.GetCurrentUser().Username(), userId = client.GetCurrentUser().Id() };
-            authDone.Invoke();
+            client.FetchCurrentUser(tokenType, currentToken, UserDiscordUpdated);
         });
     }
 
@@ -81,6 +79,7 @@ public class DiscordManager : GameSingleton
         if (!result.Successful()) return;
 
         currentUserData = new() { userName = name, userId = id };
+        authDone.Invoke();
     }
 
     private void OnJoinedLobby(ClientResult result, ulong lobbyId)
