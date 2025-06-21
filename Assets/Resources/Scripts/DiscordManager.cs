@@ -33,6 +33,7 @@ public class DiscordManager : GameSingleton
         client = new Client();
         client.AddLogCallback(OnLog, LoggingSeverity.Verbose);
         client.SetActivityInviteCreatedCallback(OnActivityCreated);
+        client.SetLobbyCreatedCallback(OnLobbyCreated);
 
         //client.SetLobbyCreatedCallback();
         //client.SetLobbyUpdatedCallback();
@@ -90,7 +91,8 @@ public class DiscordManager : GameSingleton
         ulong[] ids = client.GetLobbyIds();
         if(ids.Length == 0)
         {
-
+            client.CreateOrJoinLobbyWithMetadata(System.Guid.NewGuid().ToString(), new() { {"host_id", clientID.ToString() } }, new(), OnJoinedLobby);
+            
         }
         foreach(ulong id in ids)
         {
@@ -115,7 +117,11 @@ public class DiscordManager : GameSingleton
     private void OnJoinedLobby(ClientResult result, ulong lobbyId)
     {
         OnLog($"lobby joined! -- lobby id : {lobbyId}", LoggingSeverity.Info);
-        client.SendActivityInvite(622484016066461727, "bouh", OnActivityInvited);
+    }
+
+    private void OnLobbyCreated(ulong lobbyid)
+    {
+        OnLog("Lobby Created -- lobby id :" + lobbyid);
     }
 
     private void OnActivityInvited(ClientResult result)
