@@ -6,13 +6,13 @@ public class DiscordManager : GameSingleton
 {
     [SerializeField] ulong clientID = 0;
     [SerializeField] ulong appID = 0;
+    [SerializeField] int maxLobbySize;
 
     Client client;
     string codeVerifier;
 
     string currentToken;
     ulong currentLobby;
-
 
 
     public UserData? currentUserData;
@@ -23,12 +23,16 @@ public class DiscordManager : GameSingleton
     public delegate void OnLobbyJoined();
     public OnLobbyJoined lobbyJoined;
 
-
+    private void Awake()
+    {
+        MakeInstance<DiscordManager>();
+    }
 
     private void Start()
     {
         client = new Client();
         client.AddLogCallback(OnLog, LoggingSeverity.Verbose);
+        client.SetActivityInviteCreatedCallback(OnActivityCreated);
 
         //client.SetLobbyCreatedCallback();
         //client.SetLobbyUpdatedCallback();
@@ -81,15 +85,49 @@ public class DiscordManager : GameSingleton
         authDone.Invoke();
     }
 
+    public void TryJoinLobby()
+    {
+        ulong[] ids = client.GetLobbyIds();
+        if(ids.Length == 0)
+        {
+
+        }
+        foreach(ulong id in ids)
+        {
+            LobbyHandle lobbyHandle = client.GetLobbyHandle(id);
+            ulong hostId = ulong.Parse(lobbyHandle.Metadata()["host_id"]);
+
+            ulong[] membersIds = lobbyHandle.LobbyMemberIds();
+            if(membersIds.Length >= maxLobbySize)
+            {
+                continue;
+            }
+            else
+            {
+                client.SendActivityJoinRequest(hostId, (ClientResult result)=>{});
+                break;
+            }
+
+        }
+
+    }
+
     private void OnJoinedLobby(ClientResult result, ulong lobbyId)
     {
-        OnLog("lobby joined!", LoggingSeverity.Info);
+        OnLog($"lobby joined! -- lobby id : {lobbyId}", LoggingSeverity.Info);
         client.SendActivityInvite(622484016066461727, "bouh", OnActivityInvited);
     }
 
     private void OnActivityInvited(ClientResult result)
     {
         print("huh");
+    }
+
+    private void OnActivityCreated(ActivityInvite invite)
+    {
+        client.AcceptActivityInvite(invite, (ClientResult result, string secret) => {
+            client.CreateOrJoinLobby(secret, OnJoinedLobby);
+        });
     }
 
     void OnLog(string message, LoggingSeverity severity = LoggingSeverity.Verbose)
