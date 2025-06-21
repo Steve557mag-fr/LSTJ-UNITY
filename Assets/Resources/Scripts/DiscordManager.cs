@@ -89,10 +89,11 @@ public class DiscordManager : GameSingleton
     public void TryJoinLobby()
     {
         ulong[] ids = client.GetLobbyIds();
+        OnLog($"Available Lobbies : {ids.Length}", LoggingSeverity.Info);
         if(ids.Length == 0)
         {
             client.CreateOrJoinLobbyWithMetadata(System.Guid.NewGuid().ToString(), new() { {"host_id", clientID.ToString() } }, new(), OnJoinedLobby);
-            
+            OnLog("Created a new lobby", LoggingSeverity.Info);
         }
         foreach(ulong id in ids)
         {
@@ -116,7 +117,7 @@ public class DiscordManager : GameSingleton
 
     private void OnJoinedLobby(ClientResult result, ulong lobbyId)
     {
-        OnLog($"lobby joined! -- lobby id : {lobbyId}", LoggingSeverity.Info);
+        OnLog($"lobby joined! -- lobby id : {lobbyId} === Client result : {result}", LoggingSeverity.Info);
     }
 
     private void OnLobbyCreated(ulong lobbyid)
