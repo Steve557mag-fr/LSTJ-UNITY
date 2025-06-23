@@ -1,6 +1,7 @@
 using UnityEngine;
 using Discord.Sdk;
 using System;
+using Newtonsoft.Json.Linq;
 
 public class DiscordManager : GameSingleton
 {
@@ -47,7 +48,7 @@ public class DiscordManager : GameSingleton
 
         AuthorizationArgs authArgs = new AuthorizationArgs();
         authArgs.SetClientId(clientID);
-        authArgs.SetScopes(Client.GetDefaultPresenceScopes());
+        authArgs.SetScopes(Client.GetDefaultCommunicationScopes());
         authArgs.SetCodeChallenge(verifier.Challenge());
         client.Authorize(authArgs, OnAuth);
 
@@ -89,39 +90,36 @@ public class DiscordManager : GameSingleton
     public void TryJoinLobby()
     {
         ulong[] ids = client.GetLobbyIds();
-        if(ids.Length == 0)
-        {
-            client.CreateOrJoinLobbyWithMetadata(System.Guid.NewGuid().ToString(), new() { {"host_id", clientID.ToString() } }, new(), OnJoinedLobby);
-            
-        }
+        
         foreach(ulong id in ids)
         {
             LobbyHandle lobbyHandle = client.GetLobbyHandle(id);
             ulong hostId = ulong.Parse(lobbyHandle.Metadata()["host_id"]);
-
             ulong[] membersIds = lobbyHandle.LobbyMemberIds();
-            if(membersIds.Length >= maxLobbySize)
-            {
-                continue;
-            }
-            else
-            {
-                client.SendActivityJoinRequest(hostId, (ClientResult result)=>{});
-                break;
-            }
 
+            if (membersIds.Length >= maxLobbySize || membersIds.Length == 0) continue;
+
+            OnLog("lobby found!");
+            client.SendActivityJoinRequest(hostId, (ClientResult result)=>{});
+            return;
+            
         }
+
+        OnLog("lobby created (no lobby found)!");
+        client.CreateOrJoinLobbyWithMetadata(System.Guid.NewGuid().ToString(), new() { { "host_id", clientID.ToString() } }, new(), OnJoinedLobby);
 
     }
 
     private void OnJoinedLobby(ClientResult result, ulong lobbyId)
     {
+        currentLobby = lobbyId;
         OnLog($"lobby joined! -- lobby id : {lobbyId}", LoggingSeverity.Info);
     }
 
     private void OnLobbyCreated(ulong lobbyid)
     {
         OnLog("Lobby Created -- lobby id :" + lobbyid);
+        OnLog($"lobbies: {JsonUtility.ToJson(client.GetLobbyIds())}");
     }
 
     private void OnActivityInvited(ClientResult result)
@@ -139,6 +137,21 @@ public class DiscordManager : GameSingleton
     void OnLog(string message, LoggingSeverity severity = LoggingSeverity.Verbose)
     {
         Debug.Log($"[DISC/{severity}]: {message}");
+    }
+
+
+    private void OnApplicationQuit()
+    {
+        if(currentLobby > 0)
+        {
+            client.LeaveLobby(currentLobby, (ClientResult result) => { });
+        }
+
+        OnLog($"id lobb: {currentLobby}");
+
+        OnLog($"lobbies: {JsonUtility.ToJson(client.GetLobbyIds())}");
+
+        OnLog("APP SHUTDOWN");
     }
 
 }
