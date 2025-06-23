@@ -74,6 +74,7 @@ public class DiscordManager : GameSingleton
         client.UpdateToken(tokenType, accessToken, (ClientResult result) => {
             client.Connect();
             client.FetchCurrentUser(tokenType, currentToken, UserDiscordUpdated);
+            OnLog($"Token received : {accessToken}", LoggingSeverity.Info);
         });
     }
 
@@ -92,8 +93,10 @@ public class DiscordManager : GameSingleton
         OnLog($"Available Lobbies : {ids.Length}", LoggingSeverity.Info);
         if(ids.Length == 0)
         {
-            client.CreateOrJoinLobbyWithMetadata(System.Guid.NewGuid().ToString(), new() { {"host_id", clientID.ToString() } }, new(), OnJoinedLobby);
-            OnLog("Created a new lobby", LoggingSeverity.Info);
+            string secret = System.Guid.NewGuid().ToString();
+            //client.CreateOrJoinLobbyWithMetadata(System.Guid.NewGuid().ToString(), new() { {"host_id", clientID.ToString() } }, new(), OnJoinedLobby);
+            client.CreateOrJoinLobby(secret, OnJoinedLobby);
+            OnLog($"Created a new lobby with secret : {secret}", LoggingSeverity.Info);
         }
         foreach(ulong id in ids)
         {
