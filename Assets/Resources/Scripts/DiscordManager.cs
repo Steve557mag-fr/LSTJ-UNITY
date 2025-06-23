@@ -117,7 +117,6 @@ public class DiscordManager : GameSingleton
         OnLog($"lobby joined! -- lobby id : {lobbyId}", LoggingSeverity.Info);
 
         var lobbies = client.GetLobbyIds();
-        OnLog($"lobbies: { new JObject(lobbies) }");
 
     }
 
@@ -152,10 +151,7 @@ public class DiscordManager : GameSingleton
         }
 
         OnLog($"id lobb: {currentLobby}");
-
-        OnLog($"lobbies: {JsonUtility.ToJson(client.GetLobbyIds())}");
-
-        OnLog("APP SHUTDOWN");
+        OnLog(" = APP SHUTDOWN = ", LoggingSeverity.Info);
     }
 
 }
