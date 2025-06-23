@@ -97,6 +97,7 @@ public class DiscordManager : GameSingleton
             ulong hostId = ulong.Parse(lobbyHandle.Metadata()["host_id"]);
             ulong[] membersIds = lobbyHandle.LobbyMemberIds();
 
+            OnLog($"lobby(id:{id}) : {lobbyHandle.ToString()}");
             if (membersIds.Length >= maxLobbySize || membersIds.Length == 0) continue;
 
             OnLog("lobby found!");
@@ -114,12 +115,15 @@ public class DiscordManager : GameSingleton
     {
         currentLobby = lobbyId;
         OnLog($"lobby joined! -- lobby id : {lobbyId}", LoggingSeverity.Info);
+
+        var lobbies = client.GetLobbyIds();
+        OnLog($"lobbies: { new JObject(lobbies) }");
+
     }
 
     private void OnLobbyCreated(ulong lobbyid)
     {
         OnLog("Lobby Created -- lobby id :" + lobbyid);
-        OnLog($"lobbies: {JsonUtility.ToJson(client.GetLobbyIds())}");
     }
 
     private void OnActivityInvited(ClientResult result)
