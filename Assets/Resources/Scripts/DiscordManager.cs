@@ -7,15 +7,14 @@ using System.Linq;
 
 public class DiscordManager : GameSingleton
 {
+    [SerializeField] public const int maxLobbySize = 4;
+
     [SerializeField] ulong clientID = 0;
     [SerializeField] ulong appID = 0;
-    [SerializeField] int maxLobbySize;
 
     Client client;
     string codeVerifier;
-
     string currentToken;
-
 
     public UserData? currentUserData;
     public LobbyData? currentLobby;
@@ -23,7 +22,7 @@ public class DiscordManager : GameSingleton
     public delegate void OnDiscordAuthDone();
     public OnDiscordAuthDone authDone;
 
-    public delegate void OnLobbyJoined();
+    public delegate void OnLobbyJoined(LobbyData lobby);
     public OnLobbyJoined lobbyJoined;
 
     private void Awake()
@@ -126,7 +125,7 @@ public class DiscordManager : GameSingleton
         
         
 
-        lobbyJoined.Invoke();
+        lobbyJoined.Invoke(currentLobby.Value);
     }
 
     private void OnLobbyCreated(ulong lobbyid)
