@@ -2,6 +2,8 @@ using UnityEngine;
 using Discord.Sdk;
 using System;
 using Newtonsoft.Json.Linq;
+using static DiscordManager;
+using System.Linq;
 
 public class DiscordManager : GameSingleton
 {
@@ -13,10 +15,10 @@ public class DiscordManager : GameSingleton
     string codeVerifier;
 
     string currentToken;
-    ulong currentLobby;
 
 
     public UserData? currentUserData;
+    public LobbyData? currentLobby;
 
     public delegate void OnDiscordAuthDone();
     public OnDiscordAuthDone authDone;
@@ -85,6 +87,7 @@ public class DiscordManager : GameSingleton
 
         currentUserData = new() { userName = name, userId = id };
         authDone.Invoke();
+
     }
 
     public void TryJoinLobby()
@@ -113,11 +116,17 @@ public class DiscordManager : GameSingleton
 
     private void OnJoinedLobby(ClientResult result, ulong lobbyId)
     {
-        currentLobby = lobbyId;
         OnLog($"lobby joined! -- lobby id : {lobbyId}", LoggingSeverity.Info);
+        currentLobby = new() { id = lobbyId, users = client.GetLobbyHandle(lobbyId).LobbyMembers().Select((e) => { return new UserData(){
+            userId = e.User().Id(),
+            userName = e.User().GlobalName(),
+            avatarUrl = e.User().AvatarUrl(UserHandle.AvatarType.Png, UserHandle.AvatarType.Png)
+        }; }).ToArray() };
 
-        var lobbies = client.GetLobbyIds();
+        
+        
 
+        lobbyJoined.Invoke();
     }
 
     private void OnLobbyCreated(ulong lobbyid)
@@ -145,9 +154,9 @@ public class DiscordManager : GameSingleton
 
     private void OnApplicationQuit()
     {
-        if(currentLobby > 0)
+        if(currentLobby.HasValue)
         {
-            client.LeaveLobby(currentLobby, (ClientResult result) => { });
+            client.LeaveLobby(currentLobby.Value.id, (ClientResult result) => { });
         }
 
         OnLog($"id lobb: {currentLobby}");
@@ -160,4 +169,11 @@ public struct UserData
 {
     public string userName;
     public ulong userId;
+    public string avatarUrl;
+}
+
+public struct LobbyData
+{
+    public ulong id;
+    public UserData[] users;
 }
