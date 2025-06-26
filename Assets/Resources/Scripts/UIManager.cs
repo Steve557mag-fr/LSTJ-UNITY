@@ -1,11 +1,12 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using System;
 
 public class UIManager : MonoBehaviour
 {
 
-    [SerializeField] TextMeshProUGUI authLabel;
+    [SerializeField] TextMeshProUGUI authLabel, lobbyPlayersCount;
     [SerializeField] GameObject joinLobbyButton, authButton;
     [SerializeField] GameObject lobbyContainer, authContainer;
     [SerializeField] UserSlot[] userSlots;
@@ -15,7 +16,14 @@ public class UIManager : MonoBehaviour
     public void Start()
     {
         GameSingleton.GetInstance<DiscordManager>().authDone += AuthFinished;
+        GameSingleton.GetInstance<DiscordManager>().lobbyJoined += LobbyJoined;
 
+    }
+
+    private void LobbyJoined(LobbyData lobby)
+    {
+        DisplayLobby();
+        UpdateLobby(lobby);
     }
 
     void DisplayLobby()
@@ -25,9 +33,18 @@ public class UIManager : MonoBehaviour
         //UpdateLobby();
     }
 
-    void UpdateLobby()
+    void UpdateLobby(LobbyData lobby)
     {
+        lobbyPlayersCount.text = $"{lobby.id} - ({lobby.users.Length}/{DiscordManager.maxLobbySize})";
 
+        for(int i = 0; i < DiscordManager.maxLobbySize; i++)
+        {
+            var userExist = i < lobby.users.Length;
+            userSlots[i].container.SetActive(userExist);
+            if (!userExist) continue;
+
+            userSlots[i].userNameText.text = lobby.users[i].userName;
+        }
     }
 
     void AuthFinished()
@@ -47,6 +64,7 @@ public class UIManager : MonoBehaviour
 [System.Serializable]
 public struct UserSlot
 {
+    public GameObject container;
     public TextMeshProUGUI userNameText;
     public Image userProfilePic;
 }

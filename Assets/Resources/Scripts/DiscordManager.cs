@@ -1,26 +1,28 @@
 using UnityEngine;
 using Discord.Sdk;
 using System;
+using Newtonsoft.Json.Linq;
+using static DiscordManager;
+using System.Linq;
 
 public class DiscordManager : GameSingleton
 {
+    [SerializeField] public const int maxLobbySize = 4;
+
     [SerializeField] ulong clientID = 0;
     [SerializeField] ulong appID = 0;
-    [SerializeField] int maxLobbySize;
 
     Client client;
     string codeVerifier;
-
     string currentToken;
-    ulong currentLobby;
-
 
     public UserData? currentUserData;
+    public LobbyData? currentLobby;
 
     public delegate void OnDiscordAuthDone();
     public OnDiscordAuthDone authDone;
 
-    public delegate void OnLobbyJoined();
+    public delegate void OnLobbyJoined(LobbyData lobby);
     public OnLobbyJoined lobbyJoined;
 
     private void Awake()
@@ -47,7 +49,7 @@ public class DiscordManager : GameSingleton
 
         AuthorizationArgs authArgs = new AuthorizationArgs();
         authArgs.SetClientId(clientID);
-        authArgs.SetScopes(Client.GetDefaultPresenceScopes());
+        authArgs.SetScopes(Client.GetDefaultCommunicationScopes());
         authArgs.SetCodeChallenge(verifier.Challenge());
         client.Authorize(authArgs, OnAuth);
 
@@ -74,7 +76,6 @@ public class DiscordManager : GameSingleton
         client.UpdateToken(tokenType, accessToken, (ClientResult result) => {
             client.Connect();
             client.FetchCurrentUser(tokenType, currentToken, UserDiscordUpdated);
-            OnLog($"Token received : {accessToken}", LoggingSeverity.Info);
         });
     }
 
@@ -85,42 +86,46 @@ public class DiscordManager : GameSingleton
 
         currentUserData = new() { userName = name, userId = id };
         authDone.Invoke();
+
     }
 
     public void TryJoinLobby()
     {
         ulong[] ids = client.GetLobbyIds();
-        OnLog($"Available Lobbies : {ids.Length}", LoggingSeverity.Info);
-        if(ids.Length == 0)
-        {
-            string secret = System.Guid.NewGuid().ToString();
-            //client.CreateOrJoinLobbyWithMetadata(System.Guid.NewGuid().ToString(), new() { {"host_id", clientID.ToString() } }, new(), OnJoinedLobby);
-            client.CreateOrJoinLobby(secret, OnJoinedLobby);
-            OnLog($"Created a new lobby with secret : {secret}", LoggingSeverity.Info);
-        }
+        
         foreach(ulong id in ids)
         {
             LobbyHandle lobbyHandle = client.GetLobbyHandle(id);
             ulong hostId = ulong.Parse(lobbyHandle.Metadata()["host_id"]);
-
             ulong[] membersIds = lobbyHandle.LobbyMemberIds();
-            if(membersIds.Length >= maxLobbySize)
-            {
-                continue;
-            }
-            else
-            {
-                client.SendActivityJoinRequest(hostId, (ClientResult result)=>{});
-                break;
-            }
 
+            OnLog($"lobby(id:{id}) : {lobbyHandle.ToString()}");
+            if (membersIds.Length >= maxLobbySize || membersIds.Length == 0) continue;
+
+            OnLog("lobby found!");
+            client.SendActivityJoinRequest(hostId, (ClientResult result)=>{});
+            return;
+            
         }
+
+        OnLog("lobby created (no lobby found)!");
+        client.CreateOrJoinLobbyWithMetadata(System.Guid.NewGuid().ToString(), new() { { "host_id", clientID.ToString() } }, new(), OnJoinedLobby);
 
     }
 
     private void OnJoinedLobby(ClientResult result, ulong lobbyId)
     {
-        OnLog($"lobby joined! -- lobby id : {lobbyId} === Client result : {result}", LoggingSeverity.Info);
+        OnLog($"lobby joined! -- lobby id : {lobbyId}", LoggingSeverity.Info);
+        currentLobby = new() { id = lobbyId, users = client.GetLobbyHandle(lobbyId).LobbyMembers().Select((e) => { return new UserData(){
+            userId = e.User().Id(),
+            userName = e.User().GlobalName(),
+            avatarUrl = e.User().AvatarUrl(UserHandle.AvatarType.Png, UserHandle.AvatarType.Png)
+        }; }).ToArray() };
+
+        
+        
+
+        lobbyJoined.Invoke(currentLobby.Value);
     }
 
     private void OnLobbyCreated(ulong lobbyid)
@@ -145,10 +150,29 @@ public class DiscordManager : GameSingleton
         Debug.Log($"[DISC/{severity}]: {message}");
     }
 
+
+    private void OnApplicationQuit()
+    {
+        if(currentLobby.HasValue)
+        {
+            client.LeaveLobby(currentLobby.Value.id, (ClientResult result) => { });
+        }
+
+        OnLog($"id lobb: {currentLobby}");
+        OnLog(" = APP SHUTDOWN = ", LoggingSeverity.Info);
+    }
+
 }
 
 public struct UserData
 {
     public string userName;
     public ulong userId;
+    public string avatarUrl;
+}
+
+public struct LobbyData
+{
+    public ulong id;
+    public UserData[] users;
 }
