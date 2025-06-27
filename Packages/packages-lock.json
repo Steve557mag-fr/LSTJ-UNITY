@@ -1,11 +1,11 @@
 {
   "dependencies": {
-    "com.mikeschweitzer.websocket": {
-      "version": "https://github.com/mikerochip/unity-websocket.git",
+    "com.endel.nativewebsocket": {
+      "version": "https://github.com/endel/NativeWebSocket.git#upm",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "a1ea37daaa8f89b379a7c15b4eb75c3722cc499e"
+      "hash": "1d8b49b3fee41c09a98141f1f1a5e4db47e14229"
     },
     "com.unity.2d.animation": {
       "version": "10.1.4",

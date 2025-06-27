@@ -17,7 +17,7 @@ public class GAPIHandler : GameSingleton
     private void Start()
     {
 
-        Hello("jack");
+        //Hello("jack");
 
     }
 

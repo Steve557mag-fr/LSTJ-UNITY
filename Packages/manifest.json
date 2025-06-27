@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "com.mikeschweitzer.websocket": "https://github.com/mikerochip/unity-websocket.git",
+    "com.endel.nativewebsocket": "https://github.com/endel/NativeWebSocket.git#upm",
     "com.unity.collab-proxy": "2.8.2",
     "com.unity.feature.2d": "2.0.1",
     "com.unity.feature.mobile": "1.0.0",

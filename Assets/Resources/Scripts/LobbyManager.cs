@@ -1,54 +1,76 @@
 using UnityEngine;
 using System.Linq;
-using MikeSchweitzer.WebSocket;
+using Newtonsoft.Json.Linq;
+using NativeWebSocket;
 using Unity.VisualScripting;
 
 public class LobbyManager : GameSingleton
 {
-    public WebSocketConnection websocket;
-    public string url = "http://51.75.121.124:3030";
-
-    private void Awake()
+    public WebSocket websocket;
+    
+    async void Start()
     {
-        websocket.MessageReceived += OnMessageReceived;
-        websocket.StateChanged += OnStateChanged;
+        websocket = new WebSocket("ws://localhost:3030");
+
+        websocket.OnOpen += () =>
+        {
+            Debug.Log("Connection open!");
+        };
+
+        websocket.OnError += (e) =>
+        {
+            Debug.Log("Error! " + e);
+        };
+
+        websocket.OnClose += (e) =>
+        {
+            OnLog($"Connection closed! => {e}", LoggingSeverity.Error);
+        };
+
+        websocket.OnMessage += (bytes) =>
+        {
+            Debug.Log("OnMessage!");
+            Debug.Log(bytes);
+
+            // getting the message as a string
+            // var message = System.Text.Encoding.UTF8.GetString(bytes);
+            // Debug.Log("OnMessage! " + message);
+        };
+
+        // waiting for messages
+        await websocket.Connect();
+
+        JObject jobj = new JObject();
+        jobj["sdsd"] = new JObject() { { "age", 13 }, {"pute", new JObject() } };
     }
 
-    private void OnDestroy()
+    private void Update()
     {
-        websocket.MessageReceived -= OnMessageReceived;
-        websocket.StateChanged += OnStateChanged;
+#if !UNITY_WEBGL || UNITY_EDITOR
+        websocket.DispatchMessageQueue();
+#endif
     }
 
-    public void Connect()
+    async void SendWebSocketMessage()
     {
-        websocket.Connect(url);
+        if (websocket.State == WebSocketState.Open)
+        {
+            // Sending bytes
+            await websocket.Send(new byte[] { 10, 20, 30 });
+
+            // Sending plain text
+            //await websocket.SendText("plain text message");
+        }
     }
 
-    public void Disconnect()
+    private async void OnApplicationQuit()
     {
-        websocket.Disconnect();
-    }
-
-    private void SendString(string message)
-    {
-        websocket.AddOutgoingMessage(message);
+        await websocket.Close();
     }
 
     void OnLog(string message, LoggingSeverity severity = LoggingSeverity.Verbose)
     {
         Debug.Log($"[DISC/{severity}]: {message}");
-    }
-
-    private void OnMessageReceived(WebSocketConnection connection, WebSocketMessage message)
-    {
-        OnLog(message.String, LoggingSeverity.Message);
-
-    }
-
-    private void OnStateChanged(WebSocketConnection connection, WebSocketState oldState, WebSocketState newState)
-    {
-        OnLog($"OnStateChanged oldState = {oldState} | newState = {newState}", LoggingSeverity.State);
     }
 
 }
