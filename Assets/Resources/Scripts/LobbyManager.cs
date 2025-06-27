@@ -6,7 +6,7 @@ using Unity.VisualScripting;
 public class LobbyManager : GameSingleton
 {
     public WebSocketConnection websocket;
-    public string url = "http://vps-b7383949.vps.ovh.net:3030";
+    public string url = "http://51.75.121.124:3030";
 
     private void Awake()
     {
