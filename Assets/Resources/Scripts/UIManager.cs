@@ -6,9 +6,9 @@ using System;
 public class UIManager : MonoBehaviour
 {
 
-    [SerializeField] TextMeshProUGUI authLabel, lobbyPlayersCount;
-    [SerializeField] GameObject joinLobbyButton, authButton;
-    [SerializeField] GameObject lobbyContainer, authContainer;
+    [SerializeField] TextMeshProUGUI authLabel, lobbyPlayersCount, username;
+    [SerializeField] GameObject authButton;
+    [SerializeField] GameObject joinedContainer, lobbyContainer, authContainer, markReadySystem;
     [SerializeField] TMP_InputField usernameInput;
     [SerializeField] CanvasGroup authError;
     [SerializeField] UserSlot[] userSlots;
@@ -20,6 +20,7 @@ public class UIManager : MonoBehaviour
         lobbyManager = GameSingleton.GetInstance<LobbyManager>();
 
         lobbyManager.onAuthentificated += AuthFinished;
+        lobbyManager.onJoinedLobby += DisplayLobby;
 
     }
 
@@ -33,8 +34,9 @@ public class UIManager : MonoBehaviour
 
     void DisplayLobby()
     {
-        authContainer.SetActive(false);
+        joinedContainer.SetActive(false);
         lobbyContainer.SetActive(true);
+        markReadySystem.SetActive(true);
         //UpdateLobby();
     }
 
@@ -45,6 +47,8 @@ public class UIManager : MonoBehaviour
         if (success)
         {
             authContainer.SetActive(false);
+            joinedContainer.SetActive(true);
+            this.username.text = $"Hello {username} !";
         }
         else
         {

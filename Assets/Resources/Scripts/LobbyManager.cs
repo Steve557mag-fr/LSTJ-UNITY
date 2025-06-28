@@ -14,6 +14,8 @@ public class LobbyManager : GameSingleton
     //Delegate
     public delegate void OnAuth(bool success, string username);
     public OnAuth onAuthentificated;
+    public delegate void OnJoined();
+    public OnJoined onJoinedLobby;
 
     [SerializeField] UIManager uIManager;
     public WebSocket websocket;
@@ -23,6 +25,7 @@ public class LobbyManager : GameSingleton
     private bool isConnected;
     private string username;
     private string uuid;
+    private string lobbyId = "";
 
     private void Awake()
     {
@@ -32,10 +35,10 @@ public class LobbyManager : GameSingleton
             {"join_or_create_lobby", OnJoinedOrCreatedLobby},
             {"leave_lobby", OnLeaveLobby},
             {"get_data", OnDataFetch},
-            {"set_data", OnDataSet}
+            {"set_data", OnDataSet},
+            {"lobby_updated", OnLobbyUpdate}
         };
     }
-     
     void Update()
     {
 #if !UNITY_WEBGL || UNITY_EDITOR
@@ -44,6 +47,11 @@ public class LobbyManager : GameSingleton
             websocket.DispatchMessageQueue();
         }
 #endif
+    }
+
+    private void OnLobbyUpdate(JObject response)
+    {
+        JObject lobbyData = response["lobby"].ToObject<JObject>();
     }
 
     private void OnDataSet(JObject response)
@@ -67,7 +75,9 @@ public class LobbyManager : GameSingleton
         bool joined = response["joined"].ToObject<bool>();
         if (joined)
         {
-
+            lobbyId = response["lobby_id"].ToString();
+            onJoinedLobby();
+            OnLog($"Joined Lobby ! Lobby id : {lobbyId}");
         }
         else
         {
@@ -96,14 +106,14 @@ public class LobbyManager : GameSingleton
                 {"request_method", "create_user" },
                 {"user_id", username }
             });
-            Debug.Log("Connected !");
+            OnLog($"Connected ! Hello {username}", LoggingSeverity.Info);
             this.username = username;
             isConnected = true;
         };
 
         websocket.OnError += (e) =>
         {
-            Debug.Log("Error! " + e);
+            OnLog($"Error! {e}", LoggingSeverity.Error);
             isConnected = false;
         };
 
@@ -123,13 +133,22 @@ public class LobbyManager : GameSingleton
 
     public void JoinOrCreateLobby()
     {
-        //get lobbies;
         ToWSS(new()
         {
             {"request_method", "join_or_create_lobby" },
             {"user_name", uuid }
         });
 
+    }
+
+    public void LeaveLobby()
+    {
+        ToWSS(new()
+        {
+            {"request_method", "leave_lobby" },
+            {"lobby_id", lobbyId }
+        });
+        lobbyId = "";
     }
 
     void OnMessage(byte[] bytes)
@@ -152,12 +171,13 @@ public class LobbyManager : GameSingleton
 
     void OnClose(WebSocketCloseCode e)
     {
-        OnLog($"Connection closed! => {e}", LoggingSeverity.Error);
+        OnLog($"Connection closed! => {e}", LoggingSeverity.Info);
         isConnected = false;
     }
 
     private async void OnApplicationQuit()
     {
+        if(lobbyId != "")LeaveLobby();
         if(isConnected)await websocket.Close();
         isConnected = false;
     }
