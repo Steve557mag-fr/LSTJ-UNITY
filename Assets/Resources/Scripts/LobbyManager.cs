@@ -158,7 +158,7 @@ public class LobbyManager : GameSingleton
 
     private async void OnApplicationQuit()
     {
-        await websocket.Close();
+        if(isConnected)await websocket.Close();
         isConnected = false;
     }
 
