@@ -82,6 +82,7 @@ public class LobbyManager : GameSingleton
         else
         {
             string message = response["message"].ToString();
+
             OnLog(message, LoggingSeverity.Warning);
         }
     }
