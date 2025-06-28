@@ -11,21 +11,26 @@ using UnityEditor;
 
 public class LobbyManager : GameSingleton
 {
+    //Delegate
+    public delegate void OnAuth(bool success, string username);
+    public OnAuth onAuthentificated;
+
+    [SerializeField] UIManager uIManager;
     public WebSocket websocket;
 
-    JObject jsonResponse;
-    Dictionary<string, Action<JObject>> responses;
-    bool isConnected;
+    private JObject jsonResponse;
+    private Dictionary<string, Action<JObject>> responses;
+    private bool isConnected;
+    private string username;
+    private string uuid;
 
     private void Awake()
     {
         responses = new Dictionary<string, Action<JObject>>()
         {
             {"create_user", OnUserCreated },
-            {"create_lobby", OnLobbyCreated },
-            {"try_join_lobby", OnTryJoinLobby},
+            {"join_or_create_lobby", OnJoinedOrCreatedLobby},
             {"leave_lobby", OnLeaveLobby},
-            {"get_lobbies", OnLobbiesFetch},
             {"get_data", OnDataFetch},
             {"set_data", OnDataSet}
         };
@@ -52,30 +57,29 @@ public class LobbyManager : GameSingleton
         string val = response["val"].ToString();
     }
 
-    private void OnLobbiesFetch(JObject response)
-    {
-        JObject[] lobbies = response["lobbies"].ToObject<JObject[]>();
-    }
-
     private void OnLeaveLobby(JObject response)
     {
         bool left = response["left"].ToObject<bool>();
     }
 
-    private void OnTryJoinLobby(JObject response)
+    private void OnJoinedOrCreatedLobby(JObject response)
     {
         bool joined = response["joined"].ToObject<bool>();
-        string message = response["message"].ToString();
-    }
+        if (joined)
+        {
 
-    private void OnLobbyCreated(JObject response)
-    {
-        string lobbyId = response["lobby_id"].ToString();
+        }
+        else
+        {
+            string message = response["message"].ToString();
+            OnLog(message, LoggingSeverity.Warning);
+        }
     }
 
     private void OnUserCreated(JObject response) 
     {
-        string uuid = response["user_id"].ToString();
+        uuid = response["user_id"].ToString();
+        onAuthentificated(success: true, username);
         OnLog($"new uuid received : {uuid}", LoggingSeverity.Message);
     }
 
@@ -83,16 +87,17 @@ public class LobbyManager : GameSingleton
 
     public async void Connect(string username)
     {
-        websocket = new WebSocket("ws://localhost:3030");
+        websocket = new WebSocket("ws://51.75.121.124:3030");
 
         websocket.OnOpen += () =>
         {
             ToWSS(new()
             {
                 {"request_method", "create_user" },
-                {"user_name", username }
+                {"user_id", username }
             });
             Debug.Log("Connected !");
+            this.username = username;
             isConnected = true;
         };
 
@@ -116,22 +121,21 @@ public class LobbyManager : GameSingleton
         OnLog($"Sent Message of method {jsonRequest["request_method"]}", LoggingSeverity.Info);
     }
 
-    public void TryJoinLobby()
+    public void JoinOrCreateLobby()
     {
         //get lobbies;
-        //ToWSS(new()
-        //{
+        ToWSS(new()
+        {
+            {"request_method", "join_or_create_lobby" },
+            {"user_name", uuid }
+        });
 
-        //});
-        //connect to available lobby;
-        //create lobby;
-    
     }
 
     void OnMessage(byte[] bytes)
     {
         string message = System.Text.Encoding.UTF8.GetString(bytes);
-        JObject jsonResponse = JObject.Parse(message);
+        jsonResponse = JObject.Parse(message);
 
         OnLog($"Message Received -- Content : {jsonResponse}");
 
@@ -150,12 +154,12 @@ public class LobbyManager : GameSingleton
     {
         OnLog($"Connection closed! => {e}", LoggingSeverity.Error);
         isConnected = false;
-
     }
 
     private async void OnApplicationQuit()
     {
         await websocket.Close();
+        isConnected = false;
     }
 
     void OnLog(string message, LoggingSeverity severity = LoggingSeverity.Verbose)

@@ -10,6 +10,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] GameObject joinLobbyButton, authButton;
     [SerializeField] GameObject lobbyContainer, authContainer;
     [SerializeField] TMP_InputField usernameInput;
+    [SerializeField] CanvasGroup authError;
     [SerializeField] UserSlot[] userSlots;
 
     LobbyManager lobbyManager;
@@ -17,6 +18,8 @@ public class UIManager : MonoBehaviour
     public void Start()
     {
         lobbyManager = GameSingleton.GetInstance<LobbyManager>();
+
+        lobbyManager.onAuthentificated += AuthFinished;
 
     }
 
@@ -37,10 +40,26 @@ public class UIManager : MonoBehaviour
 
 
 
-    void AuthFinished()
+    void AuthFinished(bool success, string username)
     {
+        if (success)
+        {
+            authContainer.SetActive(false);
+        }
+        else
+        {
+            LeanLog(authError, 1, 2);
+        }
 
+    }
 
+    void LeanLog(CanvasGroup text, float alpha, float time, float delay = 3)
+    {
+        text.LeanAlpha(alpha, time).setOnComplete(() =>
+        {
+            
+            text.LeanAlpha(0, time).setDelay(delay);
+        });
     }
 
 }
