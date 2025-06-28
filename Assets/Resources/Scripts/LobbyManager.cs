@@ -41,7 +41,7 @@ public class LobbyManager : GameSingleton
     }
     void Update()
     {
-#if !UNITY_WEBGL || UNITY_EDITOR
+#if !UNITY_WEBGL || UNITY_EDITOR 
         if (isConnected)
         {
             websocket.DispatchMessageQueue();
@@ -105,7 +105,7 @@ public class LobbyManager : GameSingleton
             ToWSS(new()
             {
                 {"request_method", "create_user" },
-                {"user_id", username }
+                {"user_name", username }
             });
             OnLog($"Connected ! Hello {username}", LoggingSeverity.Info);
             this.username = username;
@@ -137,7 +137,7 @@ public class LobbyManager : GameSingleton
         ToWSS(new()
         {
             {"request_method", "join_or_create_lobby" },
-            {"user_name", uuid }
+            {"user_id", uuid }
         });
 
     }
@@ -147,7 +147,7 @@ public class LobbyManager : GameSingleton
         ToWSS(new()
         {
             {"request_method", "leave_lobby" },
-            {"lobby_id", lobbyId }
+            {"user_id", uuid}
         });
         lobbyId = "";
     }
