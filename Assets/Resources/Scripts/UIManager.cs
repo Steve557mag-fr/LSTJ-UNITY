@@ -2,19 +2,20 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System;
+using Newtonsoft.Json.Linq;
 
 public class UIManager : MonoBehaviour
 {
 
-    [SerializeField] TextMeshProUGUI authLabel, username;
+    [SerializeField] TextMeshProUGUI authLabel, username, readyButton;
     [SerializeField] GameObject authButton;
     [SerializeField] GameObject joinedContainer, lobbyContainer, authContainer, markReadySystem;
-    [SerializeField] GameObject check1, check2, check3, check4;
     [SerializeField] TMP_InputField usernameInput;
     [SerializeField] CanvasGroup authError;
     [SerializeField] UserSlot[] userSlots;
+    private bool playerIsReady;
 
-    LobbyManager lobbyManager;
+    LobbyManager lobbyManager; 
 
     public void Start()
     {
@@ -30,9 +31,9 @@ public class UIManager : MonoBehaviour
 
     public void Connect()
     {
-        if(usernameInput.text.Length > 3)
+        if(usernameInput.text.Length > 1)
         {
-        lobbyManager.Connect(usernameInput.text);
+            lobbyManager.Connect(usernameInput.text);
         }
     }
 
@@ -49,9 +50,19 @@ public class UIManager : MonoBehaviour
         lobbyContainer.SetActive(true);
         markReadySystem.SetActive(true);
     }
-    private void UpdateLobby()
+    private void UpdateLobby(JObject lobbyData)
     {
-        // Changer les ready marks hmm hmm;
+        int i = 0;
+        foreach(JProperty user in lobbyData["users"])
+        {
+            string name = user.Value["name"].ToString();
+            if (lobbyData["metadata"][$"{user.Name}_check"] == null) continue; 
+            bool ready = lobbyData["metadata"][$"{user.Name}_check"].ToObject<bool>();
+            userSlots[i].readyMark.SetActive(ready);
+            userSlots[i].userNameText.text = name;
+            i++;
+        }
+        if (lobbyData["metadata"][$"{lobbyManager.uuid}_check"] != null)  playerIsReady = lobbyData["metadata"][$"{lobbyManager.uuid}_check"].ToObject<bool>();
     }
 
     void AuthFinished(bool success, string username)
@@ -69,6 +80,19 @@ public class UIManager : MonoBehaviour
 
     }
 
+    public void OnReady()
+    {
+        lobbyManager.Ready(!playerIsReady);
+        if (playerIsReady) 
+        {
+            readyButton.text = "PAS PRÊT";
+        }
+        else
+        {
+            readyButton.text = "PRÊT";
+        }
+    }
+
     void LeanLog(CanvasGroup text, float alpha, float time, float delay = 3)
     {
         text.LeanAlpha(alpha, time).setOnComplete(() =>
@@ -84,7 +108,6 @@ public class UIManager : MonoBehaviour
 [System.Serializable]
 public struct UserSlot
 {
-    public GameObject container;
+    public GameObject readyMark;
     public TextMeshProUGUI userNameText;
-    public Image userProfilePic;
 }

@@ -7,12 +7,12 @@ using System.Collections.Generic;
 public class LobbyManager : GameSingleton
 {
     //Delegate
-    public delegate void OnAuth(bool success, string username);
+    public delegate void OnAuth(bool state = true, string username = "");
     public OnAuth onAuthentificated;
-    public delegate void OnJoinedOrLeft();
-    public OnJoinedOrLeft onJoinedLobby;
-    public OnJoinedOrLeft onLeftLobby;
-    public delegate void OnLobbyUpdated(/*JObject lobbyData*/);
+    public delegate void BaseDelagate();
+    public BaseDelagate onJoinedLobby;
+    public BaseDelagate onLeftLobby;
+    public delegate void OnLobbyUpdated(JObject lobbyData);
     public OnLobbyUpdated onLobbyUpdate;
 
     [SerializeField] UIManager uIManager;
@@ -22,8 +22,8 @@ public class LobbyManager : GameSingleton
     private Dictionary<string, Action<JObject>> responses;
     private bool isConnected;
     private string username;
-    private string uuid;
     private string lobbyId = "";
+    public string uuid;
 
     private void Awake()
     {
@@ -53,6 +53,8 @@ public class LobbyManager : GameSingleton
     private void OnLobbyUpdate(JObject response)
     {
         JObject lobbyData = response["lobby"].ToObject<JObject>();
+
+        onLobbyUpdate(lobbyData);
     }
 
     private void OnReceivedData(JObject response)
@@ -90,14 +92,14 @@ public class LobbyManager : GameSingleton
         if (joined)
         {
             lobbyId = response["lobby_id"].ToString();
-            onJoinedLobby();
             ToWSS(new()
             {
                 {"request_method", "set_meta"},
                 {"lobby_id", lobbyId},
                 {"key", $"{uuid}_check"},
-                {"val", "true"}
+                {"val", false}
             });
+            onJoinedLobby(); 
             OnLog($"Joined Lobby ! Lobby id : {lobbyId}");
         }
         else
@@ -111,11 +113,9 @@ public class LobbyManager : GameSingleton
     private void OnUserCreated(JObject response) 
     {
         uuid = response["user_id"].ToString();
-        onAuthentificated(success: true, username);
+        onAuthentificated(state: true, username);
         OnLog($"new uuid received : {uuid}", LoggingSeverity.Message);
     }
-
-    //to do refacturisé grace à L'UIManager
 
     public async void Connect(string username)
     {
@@ -161,6 +161,17 @@ public class LobbyManager : GameSingleton
             {"user_id", uuid }
         });
 
+    }
+
+    public void Ready(bool state)
+    {
+        ToWSS(new()
+        {
+            {"request_method", "set_meta"},
+            {"lobby_id", lobbyId},
+            {"key", $"{uuid}_check"},
+            {"val", state}
+        });
     }
 
     public void LeaveLobby()
