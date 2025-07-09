@@ -6,9 +6,10 @@ using System;
 public class UIManager : MonoBehaviour
 {
 
-    [SerializeField] TextMeshProUGUI authLabel, lobbyPlayersCount, username;
+    [SerializeField] TextMeshProUGUI authLabel, username;
     [SerializeField] GameObject authButton;
     [SerializeField] GameObject joinedContainer, lobbyContainer, authContainer, markReadySystem;
+    [SerializeField] GameObject check1, check2, check3, check4;
     [SerializeField] TMP_InputField usernameInput;
     [SerializeField] CanvasGroup authError;
     [SerializeField] UserSlot[] userSlots;
@@ -21,8 +22,11 @@ public class UIManager : MonoBehaviour
 
         lobbyManager.onAuthentificated += AuthFinished;
         lobbyManager.onJoinedLobby += DisplayLobby;
+        lobbyManager.onLeftLobby += QuitLobby;
+        lobbyManager.onLobbyUpdate += UpdateLobby;
 
     }
+
 
     public void Connect()
     {
@@ -32,15 +36,23 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    private void QuitLobby()
+    {
+        lobbyContainer.SetActive(false);
+        markReadySystem.SetActive(false);
+        joinedContainer.SetActive(true);
+    }
+
     void DisplayLobby()
     {
         joinedContainer.SetActive(false);
         lobbyContainer.SetActive(true);
         markReadySystem.SetActive(true);
-        //UpdateLobby();
     }
-
-
+    private void UpdateLobby()
+    {
+        // Changer les ready marks hmm hmm;
+    }
 
     void AuthFinished(bool success, string username)
     {

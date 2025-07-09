@@ -9,8 +9,11 @@ public class LobbyManager : GameSingleton
     //Delegate
     public delegate void OnAuth(bool success, string username);
     public OnAuth onAuthentificated;
-    public delegate void OnJoined();
-    public OnJoined onJoinedLobby;
+    public delegate void OnJoinedOrLeft();
+    public OnJoinedOrLeft onJoinedLobby;
+    public OnJoinedOrLeft onLeftLobby;
+    public delegate void OnLobbyUpdated(/*JObject lobbyData*/);
+    public OnLobbyUpdated onLobbyUpdate;
 
     [SerializeField] UIManager uIManager;
     public WebSocket websocket;
@@ -26,14 +29,17 @@ public class LobbyManager : GameSingleton
     {
         responses = new Dictionary<string, Action<JObject>>()
         {
-            {"create_user", OnUserCreated },
+            {"create_user", OnUserCreated},
             {"join_or_create_lobby", OnJoinedOrCreatedLobby},
             {"leave_lobby", OnLeaveLobby},
-            {"get_data", OnDataFetch},
-            {"set_data", OnDataSet},
+            {"get_meta", OnDataFetch},
+            {"set_meta", OnDataSet},
+            {"send_data", OnSendData},
+            {"received_data", OnReceivedData},
             {"lobby_updated", OnLobbyUpdate}
         };
     }
+
     void Update()
     {
 #if !UNITY_WEBGL || UNITY_EDITOR 
@@ -49,9 +55,21 @@ public class LobbyManager : GameSingleton
         JObject lobbyData = response["lobby"].ToObject<JObject>();
     }
 
+    private void OnReceivedData(JObject response)
+    {
+        JObject receivedData = response["data"].ToObject<JObject>();
+    }
+
+    private void OnSendData(JObject response)
+    {
+        bool success = response["success"].ToObject<bool>();
+    }
+
     private void OnDataSet(JObject response)
     {
         bool exist = response["exist"].ToObject<bool>();
+        if (exist) OnLog("metadata set successfully", LoggingSeverity.Info);
+        else OnLog("ta race", LoggingSeverity.Verbose);
     }
 
     private void OnDataFetch(JObject response)
@@ -63,6 +81,7 @@ public class LobbyManager : GameSingleton
     private void OnLeaveLobby(JObject response)
     {
         bool left = response["left"].ToObject<bool>();
+        onLeftLobby();
     }
 
     private void OnJoinedOrCreatedLobby(JObject response)
@@ -72,6 +91,13 @@ public class LobbyManager : GameSingleton
         {
             lobbyId = response["lobby_id"].ToString();
             onJoinedLobby();
+            ToWSS(new()
+            {
+                {"request_method", "set_meta"},
+                {"lobby_id", lobbyId},
+                {"key", $"{uuid}_check"},
+                {"val", "true"}
+            });
             OnLog($"Joined Lobby ! Lobby id : {lobbyId}");
         }
         else
@@ -139,12 +165,12 @@ public class LobbyManager : GameSingleton
 
     public void LeaveLobby()
     {
-        ToWSS(new()
-        {
-            {"request_method", "leave_lobby" },
-            {"user_id", uuid}
-        });
-        lobbyId = "";
+    //    ToWSS(new()
+    //    {
+    //        {"request_method", "leave_lobby" },
+    //        {"user_id", uuid}
+    //    });
+    //    lobbyId = "";
     }
 
     void OnMessage(byte[] bytes)
