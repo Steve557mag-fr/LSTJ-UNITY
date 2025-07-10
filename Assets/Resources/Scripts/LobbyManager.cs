@@ -176,12 +176,12 @@ public class LobbyManager : GameSingleton
 
     public void LeaveLobby()
     {
-    //    ToWSS(new()
-    //    {
-    //        {"request_method", "leave_lobby" },
-    //        {"user_id", uuid}
-    //    });
-    //    lobbyId = "";
+        ToWSS(new()
+        {
+            {"request_method", "leave_lobby" },
+            {"user_id", uuid}
+        });
+        lobbyId = "";
     }
 
     void OnMessage(byte[] bytes)

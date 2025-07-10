@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine.UI;
 using System;
 using Newtonsoft.Json.Linq;
+using System.Linq;
 
 public class UIManager : MonoBehaviour
 {
@@ -52,17 +53,27 @@ public class UIManager : MonoBehaviour
     }
     private void UpdateLobby(JObject lobbyData)
     {
-        int i = 0;
-        foreach(JProperty user in lobbyData["users"])
+        for(int i = 0; i < 4; i++)
         {
-            string name = user.Value["name"].ToString();
-            if (lobbyData["metadata"][$"{user.Name}_check"] == null) continue; 
-            bool ready = lobbyData["metadata"][$"{user.Name}_check"].ToObject<bool>();
-            userSlots[i].readyMark.SetActive(ready);
-            userSlots[i].userNameText.text = name;
-            i++;
+            if(i < lobbyData["users"].Count())
+            {
+                JProperty user = (JProperty)lobbyData["users"].Children<JProperty>()[i];
+                string name = user["name"].ToString();
+                if (lobbyData["metadata"][$"{user.Name}_check"] == null) continue; 
+                bool ready = lobbyData["metadata"][$"{user.Name}_check"].ToObject<bool>();
+                userSlots[i].readyMark.SetActive(ready);
+                userSlots[i].userNameText.text = name;
+            }
+            else
+            {
+                userSlots[i].readyMark.SetActive(false);
+                userSlots[i].userNameText.text = "";
+            }
+
         }
-        if (lobbyData["metadata"][$"{lobbyManager.uuid}_check"] != null)  playerIsReady = lobbyData["metadata"][$"{lobbyManager.uuid}_check"].ToObject<bool>();
+
+        if (lobbyData["metadata"][$"{lobbyManager.uuid}_check"] != null)
+            playerIsReady = lobbyData["metadata"][$"{lobbyManager.uuid}_check"].ToObject<bool>();
     }
 
     void AuthFinished(bool success, string username)
