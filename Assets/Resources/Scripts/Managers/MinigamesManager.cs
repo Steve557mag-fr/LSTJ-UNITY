@@ -9,8 +9,13 @@ public class MinigamesManager : GameSingleton
 
     public MinigameInfo[] minigamesInfo;
     protected Dictionary<string, MinigameInfo> minigames = new();
-
     protected string currentMGName;
+
+    bool isBusy = false;
+
+    internal bool IsBusy {
+        get { return isBusy; }
+    }
 
     internal BaseMinigame GetCurrentMG()
     {
@@ -22,12 +27,17 @@ public class MinigamesManager : GameSingleton
         if (!minigames.ContainsKey(newMG)) return;
 
         //make transition
-        GameSingleton.GetInstance<UIManager>().MakeScreenTransition(async () =>
+        isBusy = true;
+        GameSingleton.GetInstance<UIManager>().MakeScreenTransition(
+        duringTransition: async () =>
         {
             //unload old scene + load new scene
             await SceneManager.UnloadSceneAsync(newMG);
             currentMGName = newMG;
             await SceneManager.LoadSceneAsync(newMG);
+        },
+        finished: () => { 
+            isBusy = true;
         });
 
     }

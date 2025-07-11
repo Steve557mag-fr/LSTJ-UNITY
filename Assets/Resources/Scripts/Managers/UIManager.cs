@@ -74,13 +74,15 @@ public class UIManager : MonoBehaviour
         });
     }
 
-    internal async void MakeScreenTransition(Func<Task> duringTransition)
+    internal async void MakeScreenTransition(Func<Task> duringTransition = null, Action finished = null, float delayFadeOut = 0.5f)
     {
         LeanTween.alphaCanvas(fadeCanvas, 1, fadeDuration).setOnComplete(async () =>
         {
-            await duringTransition();
-            LeanTween.alphaCanvas(fadeCanvas, 0, fadeDuration).setDelay(0.5f);
+            if(duringTransition != null) await duringTransition();
+            LeanTween.alphaCanvas(fadeCanvas, 0, fadeDuration).setDelay(delayFadeOut);
         });
+
+        if(finished != null) finished();
 
     }
 
