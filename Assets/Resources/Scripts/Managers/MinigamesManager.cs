@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -18,7 +19,17 @@ public class MinigamesManager : GameSingleton
 
     internal void SetMG(string newMG)
     {
-        if(minigames.ContainsKey(newMG)) currentMGName = newMG;
+        if (!minigames.ContainsKey(newMG)) return;
+
+        //make transition
+        GameSingleton.GetInstance<UIManager>().MakeScreenTransition(async () =>
+        {
+            //unload old scene + load new scene
+            await SceneManager.UnloadSceneAsync(newMG);
+            currentMGName = newMG;
+            await SceneManager.LoadSceneAsync(newMG);
+        });
+
     }
 
     private void Awake()

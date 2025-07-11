@@ -2,11 +2,19 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System;
+using System.Threading.Tasks;
 
 public class UIManager : MonoBehaviour
 {
+    internal delegate void TransitionAction();
 
-    [SerializeField] TextMeshProUGUI authLabel, lobbyPlayersCount, username;
+    [Header("Screen Fade")]
+    [SerializeField] CanvasGroup fadeCanvas;
+    [SerializeField] float fadeDuration = 1;
+
+    [Header("Misc.")]
+    [SerializeField] TextMeshProUGUI authLabel;
+    [SerializeField] TextMeshProUGUI lobbyPlayersCount, username;
     [SerializeField] GameObject authButton;
     [SerializeField] GameObject joinedContainer, lobbyContainer, authContainer, markReadySystem;
     [SerializeField] TMP_InputField usernameInput;
@@ -64,6 +72,16 @@ public class UIManager : MonoBehaviour
             
             text.LeanAlpha(0, time).setDelay(delay);
         });
+    }
+
+    internal async void MakeScreenTransition(Func<Task> duringTransition)
+    {
+        LeanTween.alphaCanvas(fadeCanvas, 1, fadeDuration).setOnComplete(async () =>
+        {
+            await duringTransition();
+            LeanTween.alphaCanvas(fadeCanvas, 0, fadeDuration).setDelay(0.5f);
+        });
+
     }
 
 }
