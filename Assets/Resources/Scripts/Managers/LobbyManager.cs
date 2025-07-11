@@ -31,9 +31,16 @@ public class LobbyManager : GameSingleton
             {"leave_lobby", OnLeaveLobby},
             {"get_data", OnDataFetch},
             {"set_data", OnDataSet},
-            {"lobby_updated", OnLobbyUpdate}
+            {"lobby_updated", OnLobbyUpdate},
+            {"received_data", OnDataReceived }
         };
     }
+
+    private void OnDataReceived(JObject packet)
+    {
+        GameSingleton.GetInstance<MinigamesManager>().GetCurrentMG().ReceiveSocketPacket(packet);
+    }
+
     void Update()
     {
 #if !UNITY_WEBGL || UNITY_EDITOR 
