@@ -7,10 +7,13 @@ using System.Collections.Generic;
 public class LobbyManager : GameSingleton
 {
     //Delegate
-    public delegate void OnAuth(bool success, string username);
+    public delegate void OnAuth(bool state = true, string username = "");
     public OnAuth onAuthentificated;
-    public delegate void OnJoined();
-    public OnJoined onJoinedLobby;
+    public delegate void BaseDelagate();
+    public BaseDelagate onJoinedLobby;
+    public BaseDelagate onLeftLobby;
+    public delegate void OnLobbyUpdated(JObject lobbyData);
+    public OnLobbyUpdated onLobbyUpdate;
 
     [SerializeField] UIManager uIManager;
     public WebSocket websocket;
@@ -19,37 +22,22 @@ public class LobbyManager : GameSingleton
     private Dictionary<string, Action<JObject>> responses;
     private bool isConnected;
     private string username;
-    private string uuid;
     private string lobbyId = "";
-
-    public LoggingSeverity loggingSeverityLevel = LoggingSeverity.Verbose;
+    public string uuid;
 
     private void Awake()
     {
         responses = new Dictionary<string, Action<JObject>>()
         {
-            {"create_user", OnUserCreated },
+            {"create_user", OnUserCreated},
             {"join_or_create_lobby", OnJoinedOrCreatedLobby},
             {"leave_lobby", OnLeaveLobby},
-            {"get_data", OnDataFetch},
-            {"set_data", OnDataSet},
-            {"lobby_updated", OnLobbyUpdate},
-            {"received_data", OnDataReceived }
+            {"get_meta", OnDataFetch},
+            {"set_meta", OnDataSet},
+            {"send_data", OnSendData},
+            {"received_data", OnReceivedData},
+            {"lobby_updated", OnLobbyUpdate}
         };
-    }
-
-    public void SendData(JObject data)
-    {
-        ToWSS(new(){
-            {"request_method", "send_data"},
-            {"lobby_id", lobbyId },
-            {"data", data }
-        });
-    }
-
-    private void OnDataReceived(JObject packet)
-    {
-        GameSingleton.GetInstance<MinigamesManager>().GetCurrentMG().ReceiveSocketPacket(packet);
     }
 
     void Update()
@@ -65,11 +53,25 @@ public class LobbyManager : GameSingleton
     private void OnLobbyUpdate(JObject response)
     {
         JObject lobbyData = response["lobby"].ToObject<JObject>();
+
+        onLobbyUpdate(lobbyData);
+    }
+
+    private void OnReceivedData(JObject response)
+    {
+        JObject receivedData = response["data"].ToObject<JObject>();
+    }
+
+    private void OnSendData(JObject response)
+    {
+        bool success = response["success"].ToObject<bool>();
     }
 
     private void OnDataSet(JObject response)
     {
         bool exist = response["exist"].ToObject<bool>();
+        if (exist) OnLog("metadata set successfully", LoggingSeverity.Info);
+        else OnLog("ta race", LoggingSeverity.Verbose);
     }
 
     private void OnDataFetch(JObject response)
@@ -81,6 +83,7 @@ public class LobbyManager : GameSingleton
     private void OnLeaveLobby(JObject response)
     {
         bool left = response["left"].ToObject<bool>();
+        onLeftLobby();
     }
 
     private void OnJoinedOrCreatedLobby(JObject response)
@@ -89,7 +92,14 @@ public class LobbyManager : GameSingleton
         if (joined)
         {
             lobbyId = response["lobby_id"].ToString();
-            onJoinedLobby();
+            ToWSS(new()
+            {
+                {"request_method", "set_meta"},
+                {"lobby_id", lobbyId},
+                {"key", $"{uuid}_check"},
+                {"val", false}
+            });
+            onJoinedLobby(); 
             OnLog($"Joined Lobby ! Lobby id : {lobbyId}");
         }
         else
@@ -103,11 +113,9 @@ public class LobbyManager : GameSingleton
     private void OnUserCreated(JObject response) 
     {
         uuid = response["user_id"].ToString();
-        onAuthentificated(success: true, username);
+        onAuthentificated(state: true, username);
         OnLog($"new uuid received : {uuid}", LoggingSeverity.Message);
     }
-
-    //to do refacturisé grace à L'UIManager
 
     public async void Connect(string username)
     {
@@ -155,6 +163,17 @@ public class LobbyManager : GameSingleton
 
     }
 
+    public void Ready(bool state)
+    {
+        ToWSS(new()
+        {
+            {"request_method", "set_meta"},
+            {"lobby_id", lobbyId},
+            {"key", $"{uuid}_check"},
+            {"val", state}
+        });
+    }
+
     public void LeaveLobby()
     {
         ToWSS(new()
@@ -198,17 +217,17 @@ public class LobbyManager : GameSingleton
 
     void OnLog(string message, LoggingSeverity severity = LoggingSeverity.Verbose)
     {
-        if(severity <= loggingSeverityLevel) Debug.Log($"[DISC/{severity}]: {message}");
+        Debug.Log($"[DISC/{severity}]: {message}");
     }
 
 }
 public enum LoggingSeverity
 {
-    Error = 1,
-    Warning = 2,
-    Message = 3,
-    State = 4,
-    Info = 5,
-    Verbose = 6,
-    None = 7,
+    Verbose = 1,
+    Info = 2,
+    Warning = 3,
+    Error = 4,
+    None = 5,
+    Message = 6,
+    State = 7,
 }
