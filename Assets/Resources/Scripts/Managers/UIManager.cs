@@ -70,7 +70,7 @@ public class UIManager : MonoBehaviour
                 if (lobbyData["metadata"][$"{user.Name}_check"] == null) continue;
                 bool ready = lobbyData["metadata"][$"{user.Name}_check"].ToObject<bool>();
                 userSlots[i].readyMark.SetActive(ready);
-                userSlots[i].userNameText.text = name;
+                userSlots[i].userNameText.text = name; 
             }
             else
             {
