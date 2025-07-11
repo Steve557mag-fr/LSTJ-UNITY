@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -21,7 +22,20 @@ public class MinigamesManager : GameSingleton
         return FindFirstObjectByType<BaseMinigame>();
     }
 
-    internal void SetMG(string newMG)
+    internal void SetMGFromCode(string code)
+    {
+        for(int i = 0; i < minigames.Keys.Count; i++)
+        {
+            var k = minigames.Keys.ToArray()[0];
+            if (minigames[k].minigameCode == code)
+            {
+                SetMGFromName(k);
+                return;
+            }
+        }
+    }
+
+    internal void SetMGFromName(string newMG)
     {
         if (!minigames.ContainsKey(newMG)) return;
 
@@ -57,6 +71,7 @@ public class MinigamesManager : GameSingleton
 public struct MinigameInfo
 {
     public string minigameName;
+    public string minigameCode;
     public string sceneMinigame;
 
 }

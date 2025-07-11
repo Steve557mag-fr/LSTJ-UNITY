@@ -322,6 +322,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   minigamesInfo:
   - minigameName: quest
+    minigameCode: 8264
+    sceneMinigame: MGQuest
+  - minigameName: quest
+    minigameCode: 8264
     sceneMinigame: MGQuest
 --- !u!1 &109561961
 GameObject:
