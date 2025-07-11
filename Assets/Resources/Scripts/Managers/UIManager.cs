@@ -33,7 +33,6 @@ public class UIManager : MonoBehaviour
 
         lobbyManager.onAuthentificated += AuthFinished;
         lobbyManager.onJoinedLobby += DisplayLobby;
-        lobbyManager.onLeftLobby += QuitLobby;
         lobbyManager.onLobbyUpdate += UpdateLobby;
 
     }
@@ -45,11 +44,12 @@ public class UIManager : MonoBehaviour
             lobbyManager.Connect(usernameInput.text);
         }
     }
-    private void QuitLobby()
+    public void QuitLobby()
     {
         lobbyContainer.SetActive(false);
         markReadySystem.SetActive(false);
         joinedContainer.SetActive(true);
+        lobbyManager.LeaveLobby();
     }
 
     void DisplayLobby()
@@ -65,8 +65,8 @@ public class UIManager : MonoBehaviour
         {
             if (i < lobbyData["users"].Count())
             {
-                JProperty user = (JProperty)lobbyData["users"].Children<JProperty>()[i]; // Problems
-                string name = user["name"].ToString();
+                JProperty user = ((JObject)lobbyData["users"]).Properties().ToList()[i]; // Problems
+                string name = user.Value["name"].ToString(); 
                 if (lobbyData["metadata"][$"{user.Name}_check"] == null) continue;
                 bool ready = lobbyData["metadata"][$"{user.Name}_check"].ToObject<bool>();
                 userSlots[i].readyMark.SetActive(ready);
@@ -104,11 +104,11 @@ public class UIManager : MonoBehaviour
         lobbyManager.Ready(!playerIsReady);
         if (playerIsReady)
         {
-            readyButton.text = "PAS PRÊT";
+            readyButton.text = "PRÊT"; 
         }
         else
         {
-            readyButton.text = "PRÊT"; 
+            readyButton.text = "PAS PRÊT";
         }
     }
 
