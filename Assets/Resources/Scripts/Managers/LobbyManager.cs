@@ -36,6 +36,15 @@ public class LobbyManager : GameSingleton
         };
     }
 
+    public void SendData(JObject data)
+    {
+        ToWSS(new(){
+            {"request_method", "send_data"},
+            {"lobby_id", lobbyId },
+            {"data", data }
+        });
+    }
+
     private void OnDataReceived(JObject packet)
     {
         GameSingleton.GetInstance<MinigamesManager>().GetCurrentMG().ReceiveSocketPacket(packet);
