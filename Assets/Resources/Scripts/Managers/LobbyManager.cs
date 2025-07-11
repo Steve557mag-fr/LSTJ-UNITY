@@ -22,6 +22,8 @@ public class LobbyManager : GameSingleton
     private string uuid;
     private string lobbyId = "";
 
+    public LoggingSeverity loggingSeverityLevel = LoggingSeverity.Verbose;
+
     private void Awake()
     {
         responses = new Dictionary<string, Action<JObject>>()
@@ -196,17 +198,17 @@ public class LobbyManager : GameSingleton
 
     void OnLog(string message, LoggingSeverity severity = LoggingSeverity.Verbose)
     {
-        Debug.Log($"[DISC/{severity}]: {message}");
+        if(severity <= loggingSeverityLevel) Debug.Log($"[DISC/{severity}]: {message}");
     }
 
 }
 public enum LoggingSeverity
 {
-    Verbose = 1,
-    Info = 2,
-    Warning = 3,
-    Error = 4,
-    None = 5,
-    Message = 6,
-    State = 7,
+    Error = 1,
+    Warning = 2,
+    Message = 3,
+    State = 4,
+    Info = 5,
+    Verbose = 6,
+    None = 7,
 }
