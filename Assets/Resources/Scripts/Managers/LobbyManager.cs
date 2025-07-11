@@ -11,6 +11,7 @@ public class LobbyManager : GameSingleton
     public OnAuth onAuthentificated;
     public delegate void BaseDelagate();
     public BaseDelagate onJoinedLobby;
+    public BaseDelagate onLeftLobby;
     public delegate void OnLobbyUpdated(JObject lobbyData);
     public OnLobbyUpdated onLobbyUpdate;
 
@@ -82,6 +83,7 @@ public class LobbyManager : GameSingleton
     private void OnLeaveLobby(JObject response)
     {
         bool left = response["left"].ToObject<bool>();
+        onLeftLobby();
     }
 
     private void OnJoinedOrCreatedLobby(JObject response)
@@ -165,7 +167,7 @@ public class LobbyManager : GameSingleton
     {
         ToWSS(new()
         {
-            {"request_method", "set_meta"}, 
+            {"request_method", "set_meta"},
             {"lobby_id", lobbyId},
             {"key", $"{uuid}_check"},
             {"val", state}
@@ -208,7 +210,8 @@ public class LobbyManager : GameSingleton
 
     private async void OnApplicationQuit()
     {
-        if(isConnected) await websocket.Close();
+        if(lobbyId != "")LeaveLobby();
+        if(isConnected)await websocket.Close();
         isConnected = false;
     }
 
