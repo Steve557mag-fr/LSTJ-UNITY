@@ -23,7 +23,7 @@ public class LobbyManager : GameSingleton
     private bool isConnected;
     private string username;
     private string lobbyId = "";
-    internal string uuid;
+    public string uuid;
 
     private void Awake()
     {
