@@ -34,7 +34,6 @@ public class UIManager : MonoBehaviour
         lobbyManager.onAuthentificated += AuthFinished;
         lobbyManager.onJoinedLobby += DisplayLobby;
         lobbyManager.onLobbyUpdate += UpdateLobby;
-
     }
 
     public void Connect()

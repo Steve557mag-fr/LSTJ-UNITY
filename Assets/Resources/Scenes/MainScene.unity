@@ -2661,6 +2661,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   uIManager: {fileID: 0}
+  uuid: 
 --- !u!1 &1148780780
 GameObject:
   m_ObjectHideFlags: 0
@@ -3309,7 +3310,7 @@ GameObject:
   - component: {fileID: 1492517749}
   - component: {fileID: 1492517748}
   m_Layer: 5
-  m_Name: Button
+  m_Name: Leave
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
