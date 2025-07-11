@@ -10,7 +10,6 @@ public class MinigamesManager : GameSingleton
     public MinigameInfo[] minigamesInfo;
     protected Dictionary<string, MinigameInfo> minigames = new();
     protected string currentMGName;
-
     bool isBusy = false;
 
     internal bool IsBusy {
