@@ -18,10 +18,16 @@ public class MinigamesManager : GameSingleton
         get { return isBusy; }
     }
 
+    internal string MinigameName
+    {
+        get { return currentMGName; }
+    }
+
     internal BaseMinigame GetCurrentMG()
     {
         return FindFirstObjectByType<BaseMinigame>();
     }
+
 
     internal void SetMGFromCode(string code)
     {

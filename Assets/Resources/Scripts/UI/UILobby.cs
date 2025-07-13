@@ -9,13 +9,6 @@ using UnityEngine.Rendering;
 
 public class UILobby : MonoBehaviour
 {
-    internal delegate void TransitionAction();
-
-    [Header("Screen Fade")]
-    [SerializeField] CanvasGroup fadeCanvas;
-    [SerializeField] float fadeDuration = 1;
-
-    [Header("Misc.")]
     [SerializeField] TextMeshProUGUI authLabel;
     [SerializeField] TextMeshProUGUI username, readyButton;
     [SerializeField] GameObject authButton;
