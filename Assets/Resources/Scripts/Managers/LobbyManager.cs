@@ -25,6 +25,8 @@ public class LobbyManager : GameSingleton
     private string lobbyId = "";
     public string uuid;
 
+    JObject currentLobbyData;
+
     private void Awake()
     {
         responses = new Dictionary<string, Action<JObject>>()
@@ -50,11 +52,20 @@ public class LobbyManager : GameSingleton
 #endif
     }
 
+    internal bool LobbyIsReady()
+    {
+        foreach(var item in currentLobbyData["users"].ToObject<JObject>().Properties())
+        {
+            var currentUser = item.Name;
+            if (!currentLobbyData["metadata"][$"{currentUser}_check"].ToObject<bool>()) return false;
+        }
+        return true;
+    }
+
     private void OnLobbyUpdate(JObject response)
     {
-        JObject lobbyData = response["lobby"].ToObject<JObject>();
-
-        onLobbyUpdate(lobbyData);
+        currentLobbyData = response["lobby"].ToObject<JObject>();
+        onLobbyUpdate(currentLobbyData);
     }
 
     private void OnReceivedData(JObject response)
