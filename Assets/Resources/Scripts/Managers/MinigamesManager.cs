@@ -1,3 +1,4 @@
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,19 +25,22 @@ public class MinigamesManager : GameSingleton
 
     internal void SetMGFromCode(string code)
     {
-        for(int i = 0; i < minigames.Keys.Count; i++)
+        Debug.Log(JObject.FromObject(minigames).ToString());
+        foreach(var minigame in minigames)
         {
-            var k = minigames.Keys.ToArray()[0];
-            if (minigames[k].minigameCode == code)
+            Debug.Log($"minigame is :{minigame.Value.minigameCode.Length}=={code.Length}");
+            if (minigame.Value.minigameCode.Equals(code))
             {
-                SetMGFromName(k);
+                SetMGFromName(minigame.Key);
                 return;
             }
+            else Debug.Log("ta race");
         }
     }
 
     internal void SetMGFromName(string newMG)
     {
+        Debug.Log(newMG);
         if (!minigames.ContainsKey(newMG)) return;
 
         //make transition
@@ -45,12 +49,12 @@ public class MinigamesManager : GameSingleton
         duringTransition: async () =>
         {
             //unload old scene + load new scene
-            await SceneManager.UnloadSceneAsync(newMG);
+            if(currentMGName != null) await SceneManager.UnloadSceneAsync(minigames[currentMGName].sceneMinigame);
             currentMGName = newMG;
-            await SceneManager.LoadSceneAsync(newMG);
+            await SceneManager.LoadSceneAsync(minigames[currentMGName].sceneMinigame);
         },
         finished: () => { 
-            isBusy = true;
+            isBusy = false;
         });
 
     }

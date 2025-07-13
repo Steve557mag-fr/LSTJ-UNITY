@@ -5,6 +5,7 @@ using System.Linq;
 using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using UnityEngine.Rendering;
 
 public class UIManager : MonoBehaviour
 {
@@ -19,17 +20,22 @@ public class UIManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI username, readyButton;
     [SerializeField] GameObject authButton;
     [SerializeField] GameObject joinedContainer, lobbyContainer, authContainer, markReadySystem;
-    [SerializeField] TMP_InputField usernameInput;
+    [SerializeField] TMP_InputField usernameInput, codeInput;
     [SerializeField] CanvasGroup authError;
     [SerializeField] UserSlot[] userSlots;
+    [SerializeField] int usernameCharLimit;
 
     private bool playerIsReady;
 
     LobbyManager lobbyManager;
+    MinigamesManager minigamesManager;
 
     public void Start()
     {
         lobbyManager = GameSingleton.GetInstance<LobbyManager>();
+        minigamesManager = GameSingleton.GetInstance<MinigamesManager>();
+
+        usernameInput.characterLimit = 15;
 
         lobbyManager.onAuthentificated += AuthFinished;
         lobbyManager.onJoinedLobby += DisplayLobby;
@@ -89,7 +95,7 @@ public class UIManager : MonoBehaviour
         {
             authContainer.SetActive(false);
             joinedContainer.SetActive(true);
-            this.username.text = $"Hello {username} !";
+            this.username.text = $"Bonjour {username} !";
         }
         else
         {
@@ -109,6 +115,11 @@ public class UIManager : MonoBehaviour
         {
             readyButton.text = "PAS PRÊT";
         }
+    }
+
+    public void OnCodeEnter()
+    {
+        minigamesManager.SetMGFromCode(codeInput.text);
     }
 
     void LeanLog(CanvasGroup text, float alpha, float time, float delay = 3)
