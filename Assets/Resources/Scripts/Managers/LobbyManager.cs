@@ -15,7 +15,7 @@ public class LobbyManager : GameSingleton
     public delegate void OnLobbyUpdated(JObject lobbyData);
     public OnLobbyUpdated onLobbyUpdate;
 
-    [SerializeField] UIManager uIManager;
+    [SerializeField] UILobby uiLobby;
     public WebSocket websocket;
 
     private JObject jsonResponse;
