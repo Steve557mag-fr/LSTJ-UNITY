@@ -11,7 +11,6 @@ public class LobbyManager : GameSingleton
     public OnAuth onAuthentificated;
     public delegate void BaseDelagate();
     public BaseDelagate onJoinedLobby;
-    public BaseDelagate onLeftLobby;
     public delegate void OnLobbyUpdated(JObject lobbyData);
     public OnLobbyUpdated onLobbyUpdate;
 
@@ -94,7 +93,6 @@ public class LobbyManager : GameSingleton
     private void OnLeaveLobby(JObject response)
     {
         bool left = response["left"].ToObject<bool>();
-        onLeftLobby();
     }
 
     private void OnJoinedOrCreatedLobby(JObject response)

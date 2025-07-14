@@ -4179,6 +4179,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fadeCanvas: {fileID: 335554066}
   fadeDuration: 1
+  tweenType: 1
 --- !u!1 &1549549558
 GameObject:
   m_ObjectHideFlags: 0
@@ -5095,7 +5096,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1874105400
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5372,7 +5373,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2098602975
 RectTransform:
   m_ObjectHideFlags: 0
