@@ -20,12 +20,12 @@ public class UILobby : MonoBehaviour
 
     private bool playerIsReady;
 
-    LobbyManager lobbyManager;
+    SocketManager lobbyManager;
     MinigamesManager minigamesManager;
 
     public void Start()
     {
-        lobbyManager = GameSingleton.GetInstance<LobbyManager>();
+        lobbyManager = GameSingleton.GetInstance<SocketManager>();
         minigamesManager = GameSingleton.GetInstance<MinigamesManager>();
 
         usernameInput.characterLimit = 15;

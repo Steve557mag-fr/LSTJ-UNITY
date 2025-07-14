@@ -4,7 +4,7 @@ using NativeWebSocket;
 using System;
 using System.Collections.Generic;
 
-public class LobbyManager : GameSingleton
+public class SocketManager : GameSingleton
 {
     //Delegate
     public delegate void OnAuth(bool state = true, string username = "");
@@ -23,10 +23,10 @@ public class LobbyManager : GameSingleton
     private string lobbyId = "";
     public string userId;
 
-    JObject currentLobbyData;
+    public JObject currentLobbyData;
 
     private void Awake()
-    {
+    {  
         wsResponses = new Dictionary<string, Action<JObject>>()
         {
             {"create_user", OnUserCreated},

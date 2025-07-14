@@ -10,13 +10,13 @@ public class GameManager : GameSingleton
 
     private void Start()
     {
-        GameSingleton.GetInstance<LobbyManager>().onLobbyUpdate += TryToLaunch;
+        GameSingleton.GetInstance<SocketManager>().onLobbyUpdate += TryToLaunch;
     
     }
 
     internal void TryToLaunch(JObject data)
     {
-        if(!GameSingleton.GetInstance<LobbyManager>().LobbyIsReady()) return;
+        if(!GameSingleton.GetInstance<SocketManager>().LobbyIsReady()) return;
         currentObjective = 0;
         Goto("Vault");
     
