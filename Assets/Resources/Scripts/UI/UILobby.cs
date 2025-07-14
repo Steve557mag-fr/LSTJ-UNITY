@@ -78,8 +78,8 @@ public class UILobby : MonoBehaviour
 
         }
 
-        if (lobbyData["metadata"][$"{lobbyManager.uuid}_check"] != null)
-            playerIsReady = lobbyData["metadata"][$"{lobbyManager.uuid}_check"].ToObject<bool>();
+        if (lobbyData["metadata"][$"{lobbyManager.userId}_check"] != null)
+            playerIsReady = lobbyData["metadata"][$"{lobbyManager.userId}_check"].ToObject<bool>();
     }
 
     void AuthFinished(bool success, string username)

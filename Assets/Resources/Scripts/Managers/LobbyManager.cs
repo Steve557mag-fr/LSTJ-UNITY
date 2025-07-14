@@ -17,18 +17,17 @@ public class LobbyManager : GameSingleton
     [SerializeField] UILobby uiLobby;
     public WebSocket websocket;
 
-    private JObject jsonResponse;
-    private Dictionary<string, Action<JObject>> responses;
-    private bool isConnected;
+    private Dictionary<string, Action<JObject>> wsResponses;
+    private bool userIsConnected;
     private string username;
     private string lobbyId = "";
-    public string uuid;
+    public string userId;
 
     JObject currentLobbyData;
 
     private void Awake()
     {
-        responses = new Dictionary<string, Action<JObject>>()
+        wsResponses = new Dictionary<string, Action<JObject>>()
         {
             {"create_user", OnUserCreated},
             {"join_or_create_lobby", OnJoinedOrCreatedLobby},
@@ -44,7 +43,7 @@ public class LobbyManager : GameSingleton
     void Update()
     {
 #if !UNITY_WEBGL || UNITY_EDITOR 
-        if (isConnected)
+        if (userIsConnected)
         {
             websocket.DispatchMessageQueue();
         }
@@ -105,7 +104,7 @@ public class LobbyManager : GameSingleton
             {
                 {"request_method", "set_meta"},
                 {"lobby_id", lobbyId},
-                {"key", $"{uuid}_check"},
+                {"key", $"{userId}_check"},
                 {"val", false}
             });
             onJoinedLobby(); 
@@ -121,9 +120,9 @@ public class LobbyManager : GameSingleton
 
     private void OnUserCreated(JObject response) 
     {
-        uuid = response["user_id"].ToString();
+        userId = response["user_id"].ToString();
         onAuthentificated(state: true, username);
-        OnLog($"new uuid received : {uuid}", LoggingSeverity.Message);
+        OnLog($"new uuid received : {userId}", LoggingSeverity.Message);
     }
 
     public async void Connect(string username)
@@ -139,13 +138,13 @@ public class LobbyManager : GameSingleton
             });
             OnLog($"Connected ! Hello {username}", LoggingSeverity.Info);
             this.username = username;
-            isConnected = true;
+            userIsConnected = true;
         };
 
         websocket.OnError += (e) =>
         {
             OnLog($"Error! {e}", LoggingSeverity.Error);
-            isConnected = false;
+            userIsConnected = false;
         };
 
         websocket.OnClose += OnClose;
@@ -167,7 +166,7 @@ public class LobbyManager : GameSingleton
         ToWSS(new()
         {
             {"request_method", "join_or_create_lobby" },
-            {"user_id", uuid }
+            {"user_id", userId }
         });
 
     }
@@ -178,7 +177,7 @@ public class LobbyManager : GameSingleton
         {
             {"request_method", "set_meta"},
             {"lobby_id", lobbyId},
-            {"key", $"{uuid}_check"},
+            {"key", $"{userId}_check"},
             {"val", state}
         });
     }
@@ -188,7 +187,7 @@ public class LobbyManager : GameSingleton
         ToWSS(new()
         {
             {"request_method", "leave_lobby" },
-            {"user_id", uuid}
+            {"user_id", userId}
         });
         lobbyId = "";
     }
@@ -196,13 +195,13 @@ public class LobbyManager : GameSingleton
     void OnMessage(byte[] bytes)
     {
         string message = System.Text.Encoding.UTF8.GetString(bytes);
-        jsonResponse = JObject.Parse(message);
+        JObject jsonResponse = JObject.Parse(message);
 
         OnLog($"Message Received -- Content : {jsonResponse}");
 
-        if (responses.ContainsKey(jsonResponse["request_method"].ToString()))
+        if (wsResponses.ContainsKey(jsonResponse["request_method"].ToString()))
         {
-            responses[jsonResponse["request_method"].ToString()](jsonResponse);
+            wsResponses[jsonResponse["request_method"].ToString()](jsonResponse);
         }
         else
         {
@@ -214,14 +213,14 @@ public class LobbyManager : GameSingleton
     void OnClose(WebSocketCloseCode e)
     {
         OnLog($"Connection closed! => {e}", LoggingSeverity.Info);
-        isConnected = false;
+        userIsConnected = false;
     }
 
     private async void OnApplicationQuit()
     {
         if(lobbyId != "")LeaveLobby();
-        if(isConnected)await websocket.Close();
-        isConnected = false;
+        if(userIsConnected)await websocket.Close();
+        userIsConnected = false;
     }
 
     void OnLog(string message, LoggingSeverity severity = LoggingSeverity.Verbose)
