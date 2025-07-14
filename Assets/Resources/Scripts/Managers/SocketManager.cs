@@ -17,14 +17,14 @@ public class SocketManager : GameSingleton
     [SerializeField] UILobby uiLobby;
     public WebSocket websocket;
 
+    const string websocketAdress = "ws://51.75.121.124:3030";
     private Dictionary<string, Action<JObject>> wsResponses;
     private bool userIsConnected;
-    private string username;
     private string lobbyId = "";
+    private string userName;
     public string userId;
-    const string websocketAdress = "ws://51.75.121.124:3030";
-
     public JObject currentLobbyData;
+
 
     private void Awake()
     {  
@@ -122,7 +122,7 @@ public class SocketManager : GameSingleton
     private void OnUserCreated(JObject response) 
     {
         userId = response["user_id"].ToString();
-        onAuthentificated(state: true, username);
+        onAuthentificated(state: true, userName);
         OnLog($"new uuid received : {userId}", LoggingSeverity.Message);
     }
 
@@ -138,7 +138,7 @@ public class SocketManager : GameSingleton
                 {"user_name", username }
             });
             OnLog($"Connected ! Hello {username}", LoggingSeverity.Info);
-            this.username = username;
+            this.userName = username;
             userIsConnected = true;
         };
 
