@@ -22,6 +22,7 @@ public class SocketManager : GameSingleton
     private string username;
     private string lobbyId = "";
     public string userId;
+    const string websocketAdress = "ws://51.75.121.124:3030";
 
     public JObject currentLobbyData;
 
@@ -79,8 +80,8 @@ public class SocketManager : GameSingleton
     private void OnDataSet(JObject response)
     {
         bool exist = response["exist"].ToObject<bool>();
-        if (exist) OnLog("metadata set successfully", LoggingSeverity.Info);
-        else OnLog("ta race", LoggingSeverity.Verbose);
+        if (exist) OnLog("metadata set successfully!", LoggingSeverity.Info);
+        else OnLog("metadata was not set", LoggingSeverity.Warning);
     }
 
     private void OnDataFetch(JObject response)
@@ -127,7 +128,7 @@ public class SocketManager : GameSingleton
 
     public async void Connect(string username)
     {
-        websocket = new WebSocket("ws://51.75.121.124:3030");
+        websocket = new WebSocket(websocketAdress);
 
         websocket.OnOpen += () =>
         {
