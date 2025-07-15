@@ -874,7 +874,7 @@ MonoBehaviour:
     userNameText: {fileID: 690250721}
   - readyMark: {fileID: 815728229}
     userNameText: {fileID: 1549549559}
-  usernameCharLimit: 0
+  usernameCharLimit: 15
 --- !u!1 &207528206
 GameObject:
   m_ObjectHideFlags: 0

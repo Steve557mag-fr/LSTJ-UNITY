@@ -37,7 +37,8 @@ public class SocketManager : GameSingleton
             {"set_meta", OnDataSet},
             {"send_data", OnSendData},
             {"received_data", OnReceivedData},
-            {"lobby_updated", OnLobbyUpdate}
+            {"lobby_updated", OnLobbyUpdate},
+            {"get_game_data", OnGetGameData }
         };
     }
 
@@ -59,6 +60,17 @@ public class SocketManager : GameSingleton
             if (!currentLobbyData["metadata"][$"{currentUser}_check"].ToObject<bool>()) return false;
         }
         return true;
+    }
+
+    private void OnGetGameData(JObject response)
+    {
+        bool success = response["success"].ToObject<bool>();
+        if (success)
+        {
+            JObject gameData = response["game_data"].ToObject<JObject>();
+            OnLog("GetGameData Called -- Successful", LoggingSeverity.Info);
+        }
+        else OnLog("GetGameData Called -- Unsuccessful", LoggingSeverity.Warning);
     }
 
     private void OnLobbyUpdate(JObject response)
