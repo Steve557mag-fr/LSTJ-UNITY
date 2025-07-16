@@ -6,18 +6,18 @@ using System.Collections.Generic;
 
 public class SocketManager : GameSingleton
 {
+    const string WEBSOCKET_ADDRESS = "ws://51.75.121.124:3030";
+    
     //Delegate
-    public delegate void OnAuth(bool state = true, string username = "");
-    public OnAuth onAuthentificated;
-    public delegate void BaseDelagate();
-    public BaseDelagate onJoinedLobby;
-    public delegate void OnLobbyUpdated(JObject lobbyData);
-    public OnLobbyUpdated onLobbyUpdate;
+    public delegate void SocketResponse(JObject data = null);
+    public SocketResponse onAuthentificated;
+    public SocketResponse onJoinedLobby;
+    public SocketResponse onLobbyUpdate;
+    
 
     [SerializeField] UILobby uiLobby;
     public WebSocket websocket;
 
-    const string websocketAdress = "ws://51.75.121.124:3030";
     private Dictionary<string, Action<JObject>> wsResponses;
     private bool userIsConnected;
     private string lobbyId = "";
@@ -134,13 +134,13 @@ public class SocketManager : GameSingleton
     private void OnUserCreated(JObject response) 
     {
         userId = response["user_id"].ToString();
-        onAuthentificated(state: true, userName);
+        onAuthentificated(new(){ {"state",true}, {"user_name", response["user_name"] } });
         OnLog($"new uuid received : {userId}", LoggingSeverity.Message);
     }
 
     public async void Connect(string username)
     {
-        websocket = new WebSocket(websocketAdress);
+        websocket = new WebSocket(WEBSOCKET_ADDRESS);
 
         websocket.OnOpen += () =>
         {
@@ -161,7 +161,6 @@ public class SocketManager : GameSingleton
         };
 
         websocket.OnClose += OnClose;
-
         websocket.OnMessage += OnMessage;
 
         // waiting for messages

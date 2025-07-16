@@ -50,7 +50,7 @@ public class UILobby : MonoBehaviour
         lobbyManager.LeaveLobby();
     }
 
-    void DisplayLobby()
+    void DisplayLobby(JObject o)
     {
         joinedContainer.SetActive(false);
         lobbyContainer.SetActive(true);
@@ -63,7 +63,7 @@ public class UILobby : MonoBehaviour
         {
             if (i < lobbyData["users"].Count())
             {
-                JProperty user = ((JObject)lobbyData["users"]).Properties().ToList()[i]; // Problems
+                JProperty user = ((JObject)lobbyData["users"]).Properties().ToList()[i];
                 string name = user.Value["name"].ToString(); 
                 if (lobbyData["metadata"][$"{user.Name}_check"] == null) continue;
                 bool ready = lobbyData["metadata"][$"{user.Name}_check"].ToObject<bool>();
@@ -82,13 +82,13 @@ public class UILobby : MonoBehaviour
             playerIsReady = lobbyData["metadata"][$"{lobbyManager.userId}_check"].ToObject<bool>();
     }
 
-    void AuthFinished(bool success, string username)
+    void AuthFinished(JObject data)
     {
-        if (success)
+        if (data["state"].ToObject<bool>())
         {
             authContainer.SetActive(false);
             joinedContainer.SetActive(true);
-            this.username.text = $"Bonjour {username} !";
+            this.username.text = $"Bonjour {data["user_name"].ToString()} !";
         }
         else
         {
