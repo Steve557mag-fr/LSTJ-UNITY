@@ -241,6 +241,7 @@ public class SocketManager : GameSingleton
     }
 
 }
+
 public enum LoggingSeverity
 {
     Verbose = 1,
