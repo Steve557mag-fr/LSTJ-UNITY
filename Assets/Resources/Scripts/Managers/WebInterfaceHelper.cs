@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class WebInterfaceHelper
 {
-    [DllImport("__Internal")]
-    static extern void sendMessage(string message);
 
     [DllImport("__Internal")]
     static extern void setCookie(string name, string data);
