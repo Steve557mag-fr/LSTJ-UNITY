@@ -13,6 +13,7 @@ public class SocketManager : GameSingleton
     public SocketResponse onAuthentificated;
     public SocketResponse onJoinedLobby;
     public SocketResponse onLobbyUpdate;
+    public SocketResponse onGameData;
     
 
     [SerializeField] UILobby uiLobby;
@@ -88,7 +89,7 @@ public class SocketManager : GameSingleton
         bool success = response["success"].ToObject<bool>();
         if (success)
         {
-            JObject gameData = response["game_data"].ToObject<JObject>();
+            onGameData(response["game_data"].ToObject<JObject>());
             OnLog("GetGameData Called -- Successful", LoggingSeverity.Info);
         }
         else OnLog("GetGameData Called -- Unsuccessful", LoggingSeverity.Warning);
@@ -204,7 +205,7 @@ public class SocketManager : GameSingleton
         await websocket.Connect();
     }
 
-    void ToWSS(JObject jsonRequest)
+    public void ToWSS(JObject jsonRequest)
     {
         websocket.SendText(jsonRequest.ToString());
         OnLog($"Sent Message of method {jsonRequest["request_method"]}", LoggingSeverity.Info);
