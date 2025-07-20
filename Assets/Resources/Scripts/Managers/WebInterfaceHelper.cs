@@ -12,13 +12,15 @@ public class WebInterfaceHelper
     static extern string getCookie(string name);
     
 
-    static void SetCookie(string name, string data)
+    internal static void SetCookie(string name, string data)
     {
         setCookie(name, data);
+        Debug.Log("[WEBI]: cookie set!");
     } 
 
-    static string GetCookie(string name)
+    internal static string GetCookie(string name)
     {
+        Debug.Log("[WEBI]: cookie get!");
         return getCookie(name);
     }
 

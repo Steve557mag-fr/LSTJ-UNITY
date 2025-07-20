@@ -19,7 +19,7 @@ public class SocketManager : GameSingleton
     public WebSocket websocket;
 
     private Dictionary<string, Action<JObject>> wsResponses;
-    private bool userIsConnected;
+    private bool socketConnected;
     private string lobbyId = "";
     private string userName;
     public string userId;
@@ -38,14 +38,15 @@ public class SocketManager : GameSingleton
             {"send_data", OnSendData},
             {"received_data", OnReceivedData},
             {"lobby_updated", OnLobbyUpdate},
-            {"get_game_data", OnGetGameData }
+            {"get_game_data", OnGetGameData },
+            {"reconnect_user", OnUserReconnected }
         };
     }
 
     void Update()
     {
 #if !UNITY_WEBGL || UNITY_EDITOR 
-        if (userIsConnected)
+        if (socketConnected)
         {
             websocket.DispatchMessageQueue();
         }
@@ -60,6 +61,26 @@ public class SocketManager : GameSingleton
             if (!currentLobbyData["metadata"][$"{currentUser}_check"].ToObject<bool>()) return false;
         }
         return true;
+    }
+
+
+    private void OnUserReconnected(JObject @object)
+    {
+
+        if (@object["reconnected"].ToObject<bool>())
+        {
+            userName = @object["details"]["user_name"].ToString();
+            userId   = @object["details"]["user_id"].ToString();
+        }
+        else
+        {
+            ToWSS(new()
+            {
+                {"request_method", "create_user" },
+                {"user_name", this.userName }
+            });
+        }
+
     }
 
     private void OnGetGameData(JObject response)
@@ -126,7 +147,6 @@ public class SocketManager : GameSingleton
         else
         {
             string message = response["message"].ToString();
-
             OnLog(message, LoggingSeverity.Warning);
         }
     }
@@ -136,6 +156,10 @@ public class SocketManager : GameSingleton
         userId = response["user_id"].ToString();
         onAuthentificated(new(){ {"state",true}, {"user_name", response["user_name"] } });
         OnLog($"new uuid received : {userId}", LoggingSeverity.Message);
+
+        #if UNITY_WEBGL && !UNITY_EDITOR
+        WebInterfaceHelper.SetCookie("user_id", userId);
+        #endif
     }
 
     public async void Connect(string username)
@@ -144,20 +168,33 @@ public class SocketManager : GameSingleton
 
         websocket.OnOpen += () =>
         {
+            this.userName = username;
+#if UNITY_WEBGL && !UNITY_EDITOR
+            string cookie_token = WebInterfaceHelper.GetCookie("user_id");
+            if (cookie_token != "" || cookie_token == null)
+            {
+                ToWSS(new() {
+                    {"request_method", "reconnect_user" },
+                    {"user_id", cookie_token }
+                });
+                return;
+            }
+#endif
+
+
             ToWSS(new()
             {
                 {"request_method", "create_user" },
                 {"user_name", username }
             });
             OnLog($"Connected ! Hello {username}", LoggingSeverity.Info);
-            this.userName = username;
-            userIsConnected = true;
+            socketConnected = true;
         };
 
         websocket.OnError += (e) =>
         {
             OnLog($"Error! {e}", LoggingSeverity.Error);
-            userIsConnected = false;
+            socketConnected = false;
         };
 
         websocket.OnClose += OnClose;
@@ -225,19 +262,19 @@ public class SocketManager : GameSingleton
     void OnClose(WebSocketCloseCode e)
     {
         OnLog($"Connection closed! => {e}", LoggingSeverity.Info);
-        userIsConnected = false;
+        socketConnected = false;
     }
 
     private async void OnApplicationQuit()
     {
         if(lobbyId != "")LeaveLobby();
-        if(userIsConnected)await websocket.Close();
-        userIsConnected = false;
+        if(socketConnected)await websocket.Close();
+        socketConnected = false;
     }
 
     void OnLog(string message, LoggingSeverity severity = LoggingSeverity.Verbose)
     {
-        Debug.Log($"[DISC/{severity}]: {message}");
+        Debug.Log($"[SOCKET/{severity}]: {message}");
     }
 
 }
