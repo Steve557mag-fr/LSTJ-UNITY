@@ -1,16 +1,21 @@
 using UnityEngine;
 
+[RequireComponent (typeof(Rigidbody2D))]
 public class DragDrop2D : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [SerializeField] float forceTarget = 0.5f;
+
+    Rigidbody2D rg;
+    private void Awake()
     {
-        
+        rg = GetComponent<Rigidbody2D>();
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnMouseDrag()
     {
-        
+
+        rg.position = Input.mousePosition;
+        print("bruh?");
     }
+
 }
