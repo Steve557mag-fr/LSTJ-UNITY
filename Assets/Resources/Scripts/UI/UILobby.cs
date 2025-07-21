@@ -20,26 +20,26 @@ public class UILobby : MonoBehaviour
 
     private bool playerIsReady;
 
-    SocketManager lobbyManager;
+    SocketManager socketManager;
     MinigamesManager minigamesManager;
 
     public void Start()
     {
-        lobbyManager = GameSingleton.GetInstance<SocketManager>();
+        socketManager = GameSingleton.GetInstance<SocketManager>();
         minigamesManager = GameSingleton.GetInstance<MinigamesManager>();
 
         usernameInput.characterLimit = 15;
 
-        lobbyManager.onAuthentificated += AuthFinished;
-        lobbyManager.onJoinedLobby += DisplayLobby;
-        lobbyManager.onLobbyUpdate += UpdateLobby;
+        socketManager.onAuthentificated += AuthFinished;
+        socketManager.onJoinedLobby += DisplayLobby;
+        socketManager.onLobbyUpdate += UpdateLobby;
     }
 
     public void Connect()
     {
         if (usernameInput.text.Length > 1)
         {
-            lobbyManager.Connect(usernameInput.text);
+            socketManager.Connect(usernameInput.text);
         }
     }
     public void QuitLobby()
@@ -47,7 +47,7 @@ public class UILobby : MonoBehaviour
         lobbyContainer.SetActive(false);
         markReadySystem.SetActive(false);
         joinedContainer.SetActive(true);
-        lobbyManager.LeaveLobby();
+        socketManager.LeaveLobby();
     }
 
     void DisplayLobby(JObject o)
@@ -78,8 +78,8 @@ public class UILobby : MonoBehaviour
 
         }
 
-        if (lobbyData["metadata"][$"{lobbyManager.userId}_check"] != null)
-            playerIsReady = lobbyData["metadata"][$"{lobbyManager.userId}_check"].ToObject<bool>();
+        if (lobbyData["metadata"][$"{socketManager.userId}_check"] != null)
+            playerIsReady = lobbyData["metadata"][$"{socketManager.userId}_check"].ToObject<bool>();
     }
 
     void AuthFinished(JObject data)
@@ -99,7 +99,7 @@ public class UILobby : MonoBehaviour
 
     public void OnReady()
     {
-        lobbyManager.Ready(!playerIsReady);
+        socketManager.Ready(!playerIsReady);
         if (playerIsReady)
         {
             readyButton.text = "PRÊT"; 
