@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 [CreateAssetMenu(fileName = "SpawnerHelperObject", menuName = "Scriptable Objects/SpawnerHelperObject")]
 public class SpawnerHelperObject : ScriptableObject
@@ -13,7 +12,7 @@ public class SpawnerHelperObject : ScriptableObject
 
     public void Trigger(bool spawnOnMouse=false)
     {
-        if (spawnOnMouse) Trigger(Mouse.current.position.value);
+        if (spawnOnMouse) Trigger(GameSingleton.GetInstance<InputManager>().GetTapWorldPosition());
         else Trigger();
     }
 

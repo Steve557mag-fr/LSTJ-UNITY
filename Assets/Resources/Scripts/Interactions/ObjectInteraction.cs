@@ -7,7 +7,6 @@ public class ObjectInteraction : BaseInteraction, IGameInput
 
     public void OnTapDown()
     {
-        print("zapdlzdlp");
         if(locked) return;
         if (once) locked = true;
         Interact();

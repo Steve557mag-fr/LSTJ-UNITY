@@ -2,26 +2,28 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-[RequireComponent (typeof(Rigidbody2D))]
 public class DragDrop2D : MonoBehaviour, IGameInput
 {
-    [SerializeField] float forceTarget = 0.5f;
-    [SerializeField] bool forceDraggingAtAwake = false;
+    [SerializeField] protected bool forceDraggingAtAwake = false;
 
     public event Action onDragEnd;
+    protected Vector3 offset = new(0,0,-10);
     bool dragging;
-    Rigidbody2D rgbody;
-    Vector3 offset = new(0,0,-10);
 
     private void Awake()
     {
-        rgbody = GetComponent<Rigidbody2D>();
         dragging = forceDraggingAtAwake;
     }
 
     private void Update()
     {
-        if(dragging) rgbody.transform.position = Camera.main.ScreenToWorldPoint(Mouse.current.position.value)-offset;
+        if(dragging) UpdatePosition();
+    }
+
+    protected virtual void OnDragEnd() { }
+    protected virtual void UpdatePosition()
+    {
+        transform.position = Camera.main.ScreenToWorldPoint(Mouse.current.position.value) - offset;
     }
 
     public void ForceDragging()
@@ -31,13 +33,15 @@ public class DragDrop2D : MonoBehaviour, IGameInput
 
     public void OnTapDown()
     {
-
         dragging = true;
     }
 
     public void OnTapUp()
     {
         dragging = false;
-        onDragEnd();
+        OnDragEnd();
+        onDragEnd?.Invoke();
     }
+
+
 }
