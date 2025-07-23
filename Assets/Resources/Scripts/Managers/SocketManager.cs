@@ -64,6 +64,18 @@ public class SocketManager : GameSingleton
         return true;
     }
 
+    internal int GetClientIndexInLobby()
+    {
+        int index = -1;
+        foreach (var item in currentLobbyData["users"].ToObject<JObject>().Properties())
+        {
+            index++;
+            if(item.Name == userId) return index;
+        }
+
+        return index;
+    }
+
 
     private void OnUserReconnected(JObject @object)
     {

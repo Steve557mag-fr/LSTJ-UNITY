@@ -1,8 +1,21 @@
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 
-public class TechArt : MonoBehaviour
+public class TechArt : GameSpace
 {
+    
+    int clientJobID = 0;
 
-    [SerializeField] float valueA, valueB, valueC, valueD;
+    protected override void OnBegin(JObject data)
+    {
+        clientJobID = GameSingleton.GetInstance<SocketManager>().GetClientIndexInLobby();
+
+    }
+
+    public void SendItem()
+    {
+
+    }
+
 
 }
