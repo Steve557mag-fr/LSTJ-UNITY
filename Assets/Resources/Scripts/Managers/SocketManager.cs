@@ -211,6 +211,14 @@ public class SocketManager : GameSingleton
         OnLog($"Sent Message of method {jsonRequest["request_method"]}", LoggingSeverity.Info);
     }
 
+    public void SendData(JObject data) {
+        ToWSS(new()
+        {
+            {"request_method", "send_data"},
+            {"data", data}
+        });
+    }
+
     public void JoinOrCreateLobby()
     {
         ToWSS(new()

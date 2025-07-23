@@ -15,7 +15,7 @@ public class PhysicalDragDrop2D : DragDrop2D
     protected override void UpdatePosition()
     {
         var pos = GameSingleton.GetInstance<InputManager>().GetTapWorldPosition();
-        rgbody2D.AddForce((pos-rgbody2D.position) * forceTarget);
+        rgbody2D.linearVelocity = ((pos-rgbody2D.position) * forceTarget);
     }
 
 }
