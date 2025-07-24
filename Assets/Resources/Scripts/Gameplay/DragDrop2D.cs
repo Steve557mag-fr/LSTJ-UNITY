@@ -10,9 +10,9 @@ public class DragDrop2D : MonoBehaviour, IGameInput
     protected Vector3 offset = new(0,0,-10);
     bool dragging;
 
-    private void Awake()
+    private void Start()
     {
-        dragging = forceDraggingAtAwake;
+        if (forceDraggingAtAwake) ForceDragging();
     }
 
     private void Update()
@@ -26,16 +26,16 @@ public class DragDrop2D : MonoBehaviour, IGameInput
         transform.position = Camera.main.ScreenToWorldPoint(Mouse.current.position.value) - offset;
     }
 
-    public void ForceDragging()
+    internal void ForceDragging()
     {
         dragging=true;
+        GameSingleton.GetInstance<InputManager>().ForceToOutCallStack(this);
     }
 
     public void OnTapDown()
     {
         dragging = true;
     }
-
     public void OnTapUp()
     {
         dragging = false;

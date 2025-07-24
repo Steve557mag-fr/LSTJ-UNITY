@@ -16,7 +16,7 @@ public class SocketManager : GameSingleton
     public SocketResponse onGameData;
     
 
-    [SerializeField] UILobby uiLobby;
+    //[SerializeField] UILobby uiLobby;
     public WebSocket websocket;
 
     private Dictionary<string, Action<JObject>> wsResponses;
@@ -101,7 +101,7 @@ public class SocketManager : GameSingleton
         bool success = response["success"].ToObject<bool>();
         if (success)
         {
-            onGameData(response["game_data"].ToObject<JObject>());
+            onGameData?.Invoke(response["game_data"].ToObject<JObject>());
             OnLog("GetGameData Called -- Successful", LoggingSeverity.Info);
         }
         else OnLog("GetGameData Called -- Unsuccessful", LoggingSeverity.Warning);
@@ -110,7 +110,7 @@ public class SocketManager : GameSingleton
     private void OnLobbyUpdate(JObject response)
     {
         currentLobbyData = response["lobby"].ToObject<JObject>();
-        onLobbyUpdate(currentLobbyData);
+        onLobbyUpdate?.Invoke(currentLobbyData);
     }
 
     private void OnReceivedData(JObject response)
@@ -154,7 +154,7 @@ public class SocketManager : GameSingleton
                 {"key", $"{userId}_check"},
                 {"val", false}
             });
-            onJoinedLobby(); 
+            onJoinedLobby?.Invoke(); 
             OnLog($"Joined Lobby ! Lobby id : {lobbyId}");
         }
         else
@@ -167,7 +167,7 @@ public class SocketManager : GameSingleton
     private void OnUserCreated(JObject response) 
     {
         userId = response["user_id"].ToString();
-        onAuthentificated(new(){ {"state",true}, {"user_name", response["user_name"] } });
+        onAuthentificated?.Invoke(new(){ {"state",true}, {"user_name", response["user_name"] } });
         OnLog($"new uuid received : {userId}", LoggingSeverity.Message);
 
         #if UNITY_WEBGL && !UNITY_EDITOR

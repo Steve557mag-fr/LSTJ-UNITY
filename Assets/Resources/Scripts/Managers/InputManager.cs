@@ -23,22 +23,25 @@ public class InputManager : GameSingleton
     {
         if (!isDown)
         {
-            foreach(var f in outcallStack) { f.OnTapUp(); }
+            foreach (var f in outcallStack) { f.OnTapUp(); }
             outcallStack.Clear();
             return;
         }
 
         var pos = GetTapWorldPosition();
-        var res = Physics2D.Raycast(pos, Vector3.zero,25, layerInteraction);
+        var res = Physics2D.Raycast(pos, Vector3.zero, 25, layerInteraction);
 
         if (res.collider == null) return;
         if (res.collider.GetComponent<IGameInput>() == null) return;
 
         res.collider.GetComponent<IGameInput>().OnTapDown();
-        outcallStack.Add(res.collider.GetComponent<IGameInput>());
+        ForceToOutCallStack(res.collider.GetComponent<IGameInput>());
 
     }
 
+    internal void ForceToOutCallStack(IGameInput i){
+        outcallStack.Add(i);
+    }
 
     void Start() {}
     void Update()

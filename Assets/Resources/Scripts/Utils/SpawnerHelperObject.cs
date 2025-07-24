@@ -4,10 +4,13 @@ using UnityEngine;
 public class SpawnerHelperObject : ScriptableObject
 {
     [SerializeField] GameObject prefab;
+    [SerializeField] string nameBuilder = "*";
 
     public void Trigger()
     {
-        Instantiate(prefab);
+        GameObject g = Instantiate(prefab);
+        g.name = nameBuilder.Replace("*", prefab.name);
+
     }
 
     public void Trigger(bool spawnOnMouse=false)
