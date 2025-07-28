@@ -12,6 +12,7 @@ public class ReadyMarkSystem : MonoBehaviour
 
     private void Start()
     {
+        GameSingleton.GetInstance<SocketManager>().onLobbyUpdate += UpdateSystem;
         ResetSystem();
     }
 
@@ -23,8 +24,7 @@ public class ReadyMarkSystem : MonoBehaviour
 
     public void UpdateSystem(JObject data)
     {
-
-
+        Debug.Log(data.ToString());
     }
 
 }
