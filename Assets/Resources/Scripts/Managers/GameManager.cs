@@ -8,6 +8,11 @@ public class GameManager : GameSingleton
     public NodePath[] path;
     int currentObjective;
 
+    internal static GameSpace GetCurrentSpace()
+    {
+        return FindAnyObjectByType<GameSpace>(); 
+    }
+
     private void Start()
     {
         GameSingleton.GetInstance<SocketManager>().onLobbyUpdate += TryToLaunch;

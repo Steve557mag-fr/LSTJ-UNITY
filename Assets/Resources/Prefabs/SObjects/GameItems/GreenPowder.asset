@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d475899b9371f3438f09f36cd182fde, type: 3}
+  m_Name: GreenPowder
+  m_EditorClassIdentifier: 
+  sprite: {fileID: 1535443520100171416, guid: f63b62ca18f948a448d63f2eb0a60c2d, type: 3}
+  prefab: {fileID: 1664999441821381263, guid: d2be91306515c5045893c42647304eca, type: 3}
+  canBeBurned: 0
+  canBePressed: 0
+  burnValue: 1
+  canProduce: []
+  type: GREEN

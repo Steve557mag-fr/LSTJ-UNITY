@@ -12,6 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d475899b9371f3438f09f36cd182fde, type: 3}
   m_Name: RedPlant
   m_EditorClassIdentifier: 
-  sprite: {fileID: 1535443520100171416, guid: f63b62ca18f948a448d63f2eb0a60c2d, type: 3}
+  sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
   prefab: {fileID: 2762773737955947699, guid: 755e4cc6c4ff3bf49b64e31364b63133, type: 3}
-  canProduce: []
+  canBeBurned: 0
+  canBePressed: 1
+  burnValue: 1
+  canProduce:
+  - {fileID: 11400000, guid: e88531ae0ef204148a0d921d9d0d0d24, type: 2}
+  type: PLANT

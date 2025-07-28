@@ -14,4 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sprite: {fileID: -4346244404228752641, guid: f496c859ea2eb3b41a5428a7f2bcba5f, type: 3}
   prefab: {fileID: 2762773737955947699, guid: 911fb85a2767cce43846cdc7cd61b7fc, type: 3}
-  canProduce: []
+  canBeBurned: 0
+  canBePressed: 1
+  burnValue: 1
+  canProduce:
+  - {fileID: 11400000, guid: 9656f9f9e078bcf419f04569e111a5a3, type: 2}
+  type: PLANT

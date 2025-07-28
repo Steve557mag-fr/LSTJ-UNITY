@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d475899b9371f3438f09f36cd182fde, type: 3}
+  m_Name: Butter
+  m_EditorClassIdentifier: 
+  sprite: {fileID: 1535443520100171416, guid: f63b62ca18f948a448d63f2eb0a60c2d, type: 3}
+  prefab: {fileID: 2762773737955947699, guid: 11894f33f4a504d4281d7dc8b97d9b03, type: 3}
+  canBeBurned: 1
+  canBePressed: 0
+  burnValue: 6
+  canProduce:
+  - {fileID: 11400000, guid: 8b431cacd16453546a5161a292797a8a, type: 2}
+  type: NEED_TO_BURN

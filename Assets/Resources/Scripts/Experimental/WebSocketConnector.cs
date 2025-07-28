@@ -14,7 +14,13 @@ public class WebSocketConnector : MonoBehaviour
         {
             GameSingleton.GetInstance<SocketManager>().JoinOrCreateLobby();
         };
-        GameSingleton.GetInstance<SocketManager>().Connect($"bob_{Random.Range(1000, 999)}");
+        GameSingleton.GetInstance<SocketManager>().onJoinedLobby += (JObject jo) =>
+        {
+            GameManager.GetCurrentSpace().Begin(new());
+        };
+
+        GameSingleton.GetInstance<SocketManager>().Connect($"bob_{Random.Range(100, 999)}");
+
     }
 
 }

@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d475899b9371f3438f09f36cd182fde, type: 3}
+  m_Name: HoneyComb
+  m_EditorClassIdentifier: 
+  sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  prefab: {fileID: 2762773737955947699, guid: 39026067cc27c4f469efc193dc2301e0, type: 3}
+  canBeBurned: 1
+  canBePressed: 0
+  burnValue: 3
+  canProduce:
+  - {fileID: 11400000, guid: b1f7ae651b877cb45a6a56adc3ae4fd0, type: 2}
+  type: COMB

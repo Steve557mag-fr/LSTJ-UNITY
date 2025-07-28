@@ -14,14 +14,14 @@ public class WebInterfaceHelper
 
     internal static void SetCookie(string name, string data)
     {
-        setCookie(name, data);
+        //setCookie(name, data);
         Debug.Log("[WEBI]: cookie set!");
     } 
 
     internal static string GetCookie(string name)
     {
         Debug.Log("[WEBI]: cookie get!");
-        return getCookie(name);
+        return ""; //getCookie(name);
     }
 
 }

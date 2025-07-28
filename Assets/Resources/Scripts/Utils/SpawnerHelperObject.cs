@@ -17,11 +17,22 @@ public class SpawnerHelperObject : ScriptableObject
     {
         if (spawnOnMouse) Trigger(GameSingleton.GetInstance<InputManager>().GetTapWorldPosition());
         else Trigger();
+        
+    }
+
+    public void TriggerDragDrop(bool spawnOnMouse = false)
+    {
+        GameObject g = Instantiate(prefab, spawnOnMouse ? GameSingleton.GetInstance<InputManager>().GetTapWorldPosition() : Vector2.zero, Quaternion.identity);
+        g.name = nameBuilder.Replace("*", prefab.name);
+        g.GetComponent<DragDrop2D>().ForceDragging();
+
     }
 
     public void Trigger(Vector3 pos)
     {
-        Instantiate(prefab, pos, Quaternion.identity);
+        GameObject g = Instantiate(prefab, pos, Quaternion.identity);
+        g.name = nameBuilder.Replace("*", prefab.name);
+
     }
 
 }

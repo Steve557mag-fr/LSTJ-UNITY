@@ -116,6 +116,8 @@ public class SocketManager : GameSingleton
     private void OnReceivedData(JObject response)
     {
         JObject receivedData = response["data"].ToObject<JObject>();
+        GameManager.GetCurrentSpace().ReceiveData(receivedData);
+
     }
 
     private void OnSendData(JObject response)
@@ -227,6 +229,7 @@ public class SocketManager : GameSingleton
         ToWSS(new()
         {
             {"request_method", "send_data"},
+            {"lobby_id", lobbyId},
             {"data", data}
         });
     }

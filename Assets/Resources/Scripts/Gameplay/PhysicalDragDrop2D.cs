@@ -18,4 +18,14 @@ public class PhysicalDragDrop2D : DragDrop2D
         rgbody2D.linearVelocity = ((pos-rgbody2D.position) * forceTarget);
     }
 
+    protected override void OnDragBegin()
+    {
+        gameObject.GetComponent<Collider2D>().isTrigger = true;
+    }
+
+    protected override void OnDragEnd()
+    {
+        gameObject.GetComponent<Collider2D>().isTrigger = false;
+    }
+
 }

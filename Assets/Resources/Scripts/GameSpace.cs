@@ -1,4 +1,5 @@
 using Newtonsoft.Json.Linq;
+using System;
 using UnityEngine;
 
 public class GameSpace : MonoBehaviour
@@ -18,5 +19,10 @@ public class GameSpace : MonoBehaviour
 
     protected virtual void OnBegin(JObject data) { }
     protected virtual void OnEnd() { }
+    protected virtual void OnDataReceived(JObject data) { }
 
+    internal void ReceiveData(JObject receivedData)
+    {
+        OnDataReceived(receivedData);
+    }
 }
