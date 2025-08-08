@@ -74,7 +74,7 @@ public class InputManager : GameSingleton
 
     void Start() {
         EnhancedTouchSupport.Enable();
-        InputSystem.EnableDevice(Accelerometer.current);
+        if(Accelerometer.current != null) InputSystem.EnableDevice(Accelerometer.current);
         shakeDetectionThresholdSqr = Mathf.Pow(shakeDetectionThreshold, 2);
     }
     void Update()
